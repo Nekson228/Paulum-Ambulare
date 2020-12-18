@@ -1,20 +1,24 @@
 import pygame
 
 SPEED = 10  # константа скорости персонажа
-IMAGES = {
+JUMP_HEIGHT = 6  # константа высоты прыжка персонажа
+ASSETS = {  # используемые ассеты
     'character': 'resources/character.png',
     'obstacle': 'resources/obstacle.png'
 }
 
 
 class Character(pygame.sprite.Sprite):
-    image = pygame.image.load(IMAGES['character'])
+    image = pygame.image.load(ASSETS['character'])
 
     def __init__(self, group, x, y):
         super().__init__(group)
         self.image = Character.image
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
+
+        self.jump = False
+        self.jump_delta = JUMP_HEIGHT
 
     def move(self, x, y):
         self.rect.x += x
@@ -32,7 +36,7 @@ class Character(pygame.sprite.Sprite):
 
 
 class Obstacle(pygame.sprite.Sprite):
-    image = pygame.image.load(IMAGES['obstacle'])
+    image = pygame.image.load(ASSETS['obstacle'])
 
     def __init__(self, group, x, y, w, h):
         super().__init__(group)
@@ -76,15 +80,25 @@ if __name__ == '__main__':
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
-            character.move(0, -SPEED)
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            character.move(0, SPEED)
+        if not character.jump:
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
+                character.move(0, -SPEED)
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                character.move(0, SPEED)
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             character.move(-SPEED, 0)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             character.move(SPEED, 0)
+        if keys[pygame.K_SPACE]:
+            character.jump = True
 
+        if character.jump:
+            if character.jump_delta >= -JUMP_HEIGHT:
+                character.move(0, -character.jump_delta ** 2 * (1 if character.jump_delta > 0 else -1))
+                character.jump_delta -= 1
+            else:
+                character.jump = False
+                character.jump_delta = JUMP_HEIGHT
         # Обновление экрана #
         screen.fill(pygame.Color('black'))
         all_sprites.draw(screen)
