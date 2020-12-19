@@ -3,7 +3,9 @@ import sys
 import os
 
 SPEED = 10  # константа скорости персонажа
-JUMP_HEIGHT = 6  # константа высоты прыжка персонажа
+MAX_FALL_SPEED = 10
+MIN_FALL_SPEED = 2
+JUMP_HEIGHT = 7  # константа высоты прыжка персонажа
 ASSETS = {  # используемые ассеты
     'character': 'character.png',
     'tile': 'tile.png',
@@ -22,7 +24,7 @@ def load_image(name, colorkey=None):
 
 
 def load_level(filename):  # обработка файла для реализации сборки уровня
-    filename = "resources/" + filename
+    filename = "levels/" + filename
     # читаем уровень, убирая символы перевода строки
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
@@ -57,7 +59,7 @@ class Character(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
 
         self.jump = False
-        self.jump_delta = JUMP_HEIGHT
+        self.fall = False
 
     def move(self, x, y):
         self.rect.x += x
@@ -72,6 +74,26 @@ class Character(pygame.sprite.Sprite):
                 self.rect.y = collided_sprite.rect.y - self.rect.h
             elif y < 0:
                 self.rect.y = collided_sprite.rect.y + collided_sprite.rect.h
+        if not self.jump:
+            self.check_standing()
+
+    def check_standing(self):
+        self.rect.h += 1
+        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+        self.rect.h -= 1
+        self_bottom = range(self.rect.bottomleft[0], self.rect.bottomright[0])
+        if collided_sprite and (collided_sprite.rect.right in self_bottom or collided_sprite.rect.left in self_bottom):
+            self.fall = False
+        else:
+            self.fall = True
+
+    def check_jump_ability(self):
+        self.rect.y -= 1
+        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+        self.rect.y += 1
+        if collided_sprite:
+            return False
+        return True
 
 
 class Tile(pygame.sprite.Sprite):
@@ -126,6 +148,10 @@ if __name__ == '__main__':
 
     camera = Camera()  # объект камеры
 
+    # Игровые переменные #
+    jump_delta = JUMP_HEIGHT
+    fall_delta = MIN_FALL_SPEED
+
     # Основной цикл #
     run = True
     while run:
@@ -141,16 +167,26 @@ if __name__ == '__main__':
             character.move(-SPEED, 0)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             character.move(SPEED, 0)
-        if keys[pygame.K_SPACE]:
-            character.jump = True
+        if keys[pygame.K_SPACE] and not character.fall:
+            character.jump = character.check_jump_ability()
 
         if character.jump:
-            if character.jump_delta >= -JUMP_HEIGHT:
-                character.move(0, -character.jump_delta ** 2 * (1 if character.jump_delta > 0 else -1))
-                character.jump_delta -= 1
+            if jump_delta >= -JUMP_HEIGHT:
+                character.move(0, -jump_delta ** 2 * (1 if jump_delta > 0 else -1))
+                jump_delta -= 1
             else:
                 character.jump = False
-                character.jump_delta = JUMP_HEIGHT
+                jump_delta = JUMP_HEIGHT
+
+        if character.fall and not character.jump:
+            if fall_delta < MAX_FALL_SPEED:
+                character.move(0, fall_delta ** 2)
+                fall_delta += 1
+            else:
+                character.move(0, MAX_FALL_SPEED ** 2)
+        elif not character.fall:
+            fall_delta = MIN_FALL_SPEED
+
         screen.fill('black')
         camera.update(character)
         # обновляем положение спрайтов
