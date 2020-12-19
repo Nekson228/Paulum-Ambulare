@@ -11,8 +11,8 @@ ASSETS = {  # используемые ассеты
 class Character(pygame.sprite.Sprite):
     image = pygame.image.load(ASSETS['character'])
 
-    def __init__(self, group, x, y):
-        super().__init__(group)
+    def __init__(self, x, y):
+        super().__init__(all_sprites)
         self.image = Character.image
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
@@ -38,12 +38,29 @@ class Character(pygame.sprite.Sprite):
 class Obstacle(pygame.sprite.Sprite):
     image = pygame.image.load(ASSETS['obstacle'])
 
-    def __init__(self, group, x, y, w, h):
-        super().__init__(group)
+    def __init__(self, x, y, w, h):
+        super().__init__(all_sprites)
         self.image = Obstacle.image
         self.image = pygame.transform.scale(self.image, (w, h))
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
+
+
+class Camera:
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
 if __name__ == '__main__':
@@ -57,17 +74,19 @@ if __name__ == '__main__':
     # Спрайты #
     all_sprites = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
-    character = Character(all_sprites, width // 2, height // 2)
+    character = Character(width // 2, height // 2)
 
-    obs1 = Obstacle(obstacles, 200, 50, 50, 100)
-    obs2 = Obstacle(obstacles, 250, 50, 100, 50)
-    obs3 = Obstacle(obstacles, 350, 50, 100, 50)
-    obs4 = Obstacle(obstacles, 450, 50, 50, 100)
-    obs5 = Obstacle(obstacles, 450, 100, 50, 250)
-    obs6 = Obstacle(obstacles, 200, 100, 50, 250)
+    obs1 = Obstacle(200, 50, 50, 100)
+    obs2 = Obstacle(250, 50, 100, 50)
+    obs3 = Obstacle(350, 50, 100, 50)
+    obs4 = Obstacle(450, 50, 50, 100)
+    obs5 = Obstacle(450, 100, 50, 250)
+    obs6 = Obstacle(200, 100, 50, 250)
 
     clock = pygame.time.Clock()
     fps = 30  # частота обновления экрана (кадров в секунду)
+
+    camera = Camera() # объект камеры
 
     # Основной цикл #
     run = True
@@ -99,8 +118,11 @@ if __name__ == '__main__':
             else:
                 character.jump = False
                 character.jump_delta = JUMP_HEIGHT
-        # Обновление экрана #
-        screen.fill(pygame.Color('black'))
+        screen.fill('black')
+        camera.update(character)
+        # обновляем положение спрайтов
+        for sprite in all_sprites:
+            camera.apply(sprite)
         all_sprites.draw(screen)
         obstacles.draw(screen)
         obstacles.update()
