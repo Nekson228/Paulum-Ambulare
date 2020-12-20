@@ -24,7 +24,7 @@ def load_image(name, colorkey=None):
 
 
 def load_level(filename):  # обработка файла для реализации сборки уровня
-    filename = "levels/" + filename
+    filename = "custom_maps/" + filename
     # читаем уровень, убирая символы перевода строки
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
