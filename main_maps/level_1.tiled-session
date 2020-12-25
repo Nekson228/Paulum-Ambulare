@@ -1,0 +1,82 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "level_1.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "Background.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Static_Objects.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Terrain_1.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Water.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "level_1.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 568,
+                "y": 438.6666666666667
+            }
+        },
+        "level_ex.tmx": {
+            "scale": 1.1070564516129031,
+            "selectedLayer": -1,
+            "viewCenter": {
+                "x": 236.6636313968312,
+                "y": 135.4944454562011
+            }
+        },
+        "tmw_desert_spacing.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "map.height": 17,
+    "map.lastUsedFormat": "tmx",
+    "map.layerDataFormat": null,
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 30,
+    "openFiles": [
+        "Background.tsx",
+        "Water.tsx",
+        "Terrain_1.tsx",
+        "level_1.tmx",
+        "Static_Objects.tsx",
+        "level_ex.tmx"
+    ],
+    "project": "level_1.tiled-project",
+    "recentFiles": [
+        "Background.tsx",
+        "Water.tsx",
+        "Terrain_1.tsx",
+        "level_ex.tmx",
+        "Static_Objects.tsx",
+        "level_1.tmx",
+        "tmw_desert_spacing.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    },
+    "tileset.type": 0
+}
