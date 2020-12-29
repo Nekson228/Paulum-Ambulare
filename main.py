@@ -13,6 +13,7 @@ ASSETS = {  # используемые ассеты
     'tile': 'tile.png',
     'obstacle': 'obstacle.png'
 }
+FPS = 30  # частота обновления экрана (кадров в секунду)
 
 
 def load_image(name):
@@ -23,33 +24,6 @@ def load_image(name):
         sys.exit()
     image = pygame.image.load(fullname)
     return image
-
-
-def load_level(filename):  # обработка файла для реализации сборки уровня
-    filename = "custom_maps/" + filename
-    # читаем уровень, убирая символы перевода строки
-    with open(filename, 'r') as mapFile:
-        level_map = [line.strip() for line in mapFile]
-
-    # и подсчитываем максимальную длину
-    max_width = max(map(len, level_map))
-
-    # дополняем каждую строку пустыми клетками ('.')
-    return list(map(lambda x: x.ljust(max_width, '.'), level_map))
-
-
-def generate_level(level):  # генерация уровня из обработанного текстового файла
-    new_player, x, y = None, None, None
-    for y in range(len(level)):
-        for x in range(len(level[y])):
-            if level[y][x] == '.':
-                Tile('tile', x, y)
-            elif level[y][x] == '#':
-                Tile('obstacle', x, y)
-            elif level[y][x] == '@':
-                Tile('tile', x, y)
-                new_player = Character(x, y)
-    return new_player, x, y
 
 
 class Character(pygame.sprite.Sprite):
@@ -137,12 +111,35 @@ class Camera:
         self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
+class Display:
+    def __init__(self, screen_size):
+        self.screen = pygame.display.set_mode(screen_size)
+        self.clock = pygame.time.Clock()  # объект игровых часов
+        self.camera = Camera()  # объект игровой камеры
+
+    def update(self):
+        self.clock.tick(FPS)
+        self.screen.fill('black')
+        self.camera.update(character)
+
+        for sprite in all_sprites:
+            self.camera.apply(sprite)
+        all_sprites.draw(self.screen)
+
+        pygame.display.flip()
+
+
 if __name__ == '__main__':
     # Инициализация #
     pygame.init()
     pygame.display.set_caption('Untitled Nekit Game')
     size = width, height = 640, 640
-    screen = pygame.display.set_mode(size)
+    display = Display(size)
     pygame.mouse.set_visible(False)
 
     # Спрайты #
@@ -155,11 +152,6 @@ if __name__ == '__main__':
     jump_delta = JUMP_HEIGHT
     fall_delta = MIN_FALL_SPEED
 
-    clock = pygame.time.Clock()
-    fps = 30  # частота обновления экрана (кадров в секунду)
-
-    camera = Camera()  # объект камеры
-
     game_map = TiledMap('level_ex.tmx')  # карта уровня
     game_map.render()
 
@@ -167,13 +159,11 @@ if __name__ == '__main__':
     character.check_standing()
 
     # Основной цикл #
-    run = True
-    while run:
-        clock.tick(fps)
+    while True:
         # Проверка событий #
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                terminate()
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
@@ -204,11 +194,4 @@ if __name__ == '__main__':
         elif not character.fall:
             fall_delta = MIN_FALL_SPEED
 
-        screen.fill('black')
-        camera.update(character)
-        # обновляем положение спрайтов
-        for sprite in all_sprites:
-            camera.apply(sprite)
-        all_sprites.draw(screen)
-        pygame.display.flip()
-    pygame.quit()
+        display.update()
