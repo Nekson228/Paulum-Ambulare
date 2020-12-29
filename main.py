@@ -3,9 +3,9 @@ import sys
 import os
 
 SPEED = 10  # константа скорости персонажа
-MAX_FALL_SPEED = 10
-MIN_FALL_SPEED = 2
 JUMP_HEIGHT = 7  # константа высоты прыжка персонажа
+MIN_FALL_SPEED = 1
+MAX_FALL_SPEED = JUMP_HEIGHT
 ASSETS = {  # используемые ассеты
     'character': 'character.png',
     'tile': 'tile.png',
@@ -13,7 +13,7 @@ ASSETS = {  # используемые ассеты
 }
 
 
-def load_image(name, colorkey=None):
+def load_image(name):
     fullname = os.path.join('resources', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
@@ -142,6 +142,7 @@ if __name__ == '__main__':
     tile_width = tile_height = 30  # задаем размеры(можно любой, этот для теста)
 
     character, level_x, level_y = generate_level(load_level('test_map.txt'))
+    character.check_standing()
 
     clock = pygame.time.Clock()
     fps = 30  # частота обновления экрана (кадров в секунду)
@@ -167,16 +168,19 @@ if __name__ == '__main__':
             character.move(-SPEED, 0)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             character.move(SPEED, 0)
-        if keys[pygame.K_SPACE] and not character.fall:
+        if keys[pygame.K_SPACE] and not character.fall and not character.jump:
             character.jump = character.check_jump_ability()
 
         if character.jump:
             if jump_delta >= -JUMP_HEIGHT:
-                character.move(0, -jump_delta ** 2 * (1 if jump_delta > 0 else -1))
-                jump_delta -= 1
-            else:
-                character.jump = False
-                jump_delta = JUMP_HEIGHT
+                if jump_delta > 0:
+                    character.move(0, -jump_delta ** 2)
+                    jump_delta -= 1
+                else:
+                    character.check_standing()
+                    character.jump = False
+                    jump_delta = JUMP_HEIGHT
+                    character.check_standing()
 
         if character.fall and not character.jump:
             if fall_delta < MAX_FALL_SPEED:
