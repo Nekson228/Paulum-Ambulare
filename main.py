@@ -1,11 +1,13 @@
 import pygame
 import sys
 import os
+import pytmx
 
-SPEED = 10  # константа скорости персонажа
-JUMP_HEIGHT = 7  # константа высоты прыжка персонажа
-MIN_FALL_SPEED = 1
-MAX_FALL_SPEED = JUMP_HEIGHT
+# Игровые константы #
+SPEED = 10  # скорость персонажа
+JUMP_HEIGHT = 7  # высота прыжка персонажа
+MIN_FALL_SPEED = 1  # минимальная скорость падения
+MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость падения
 ASSETS = {  # используемые ассеты
     'character': 'character.png',
     'tile': 'tile.png',
@@ -56,7 +58,7 @@ class Character(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__(player_group, all_sprites)
         self.image = Character.image
-        self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
+        self.rect = self.image.get_rect().move(32 * x, 32 * y)
 
         self.jump = False
         self.fall = False
@@ -97,15 +99,25 @@ class Character(pygame.sprite.Sprite):
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_type, x, y):
-        if tile_type == 'obstacle':
-            super().__init__(obstacles, all_sprites)
-        else:
-            super().__init__(tiles_group, all_sprites)
-        image = load_image(ASSETS[tile_type])
-        self.image = image
-        self.image = pygame.transform.scale(self.image, (tile_width, tile_height))
-        self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
+    def __init__(self, tile_img, x, y, tile_w, tile_h):
+        super().__init__(all_sprites)
+        self.image = tile_img
+        self.image = pygame.transform.scale(self.image, (tile_w, tile_h))
+        self.rect = self.image.get_rect().move(x * tile_w, y * tile_h)
+
+
+class TiledMap:
+    def __init__(self, tmx_map):
+        tmx_map = "main_maps/" + tmx_map
+        self.level_map = pytmx.load_pygame(tmx_map, pixelalpha=True)
+
+    def render(self):
+        for layer in self.level_map.layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                for x, y, gid in layer:
+                    tile = self.level_map.get_tile_image_by_gid(gid)
+                    if tile:
+                        Tile(tile, x, y, self.level_map.tilewidth, self.level_map.tileheight)
 
 
 class Camera:
@@ -139,19 +151,20 @@ if __name__ == '__main__':
     tiles_group = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
 
-    tile_width = tile_height = 30  # задаем размеры(можно любой, этот для теста)
-
-    character, level_x, level_y = generate_level(load_level('test_map.txt'))
-    character.check_standing()
+    # Игровые переменные #
+    jump_delta = JUMP_HEIGHT
+    fall_delta = MIN_FALL_SPEED
 
     clock = pygame.time.Clock()
     fps = 30  # частота обновления экрана (кадров в секунду)
 
     camera = Camera()  # объект камеры
 
-    # Игровые переменные #
-    jump_delta = JUMP_HEIGHT
-    fall_delta = MIN_FALL_SPEED
+    game_map = TiledMap('level_ex.tmx')  # карта уровня
+    game_map.render()
+
+    character = Character(0, 0)
+    character.check_standing()
 
     # Основной цикл #
     run = True
@@ -196,8 +209,6 @@ if __name__ == '__main__':
         # обновляем положение спрайтов
         for sprite in all_sprites:
             camera.apply(sprite)
-        tiles_group.draw(screen)
-        obstacles.draw(screen)
-        player_group.draw(screen)
+        all_sprites.draw(screen)
         pygame.display.flip()
     pygame.quit()
