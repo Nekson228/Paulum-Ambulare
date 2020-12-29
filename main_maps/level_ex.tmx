@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="159">
- <tileset firstgid="1" source="Background.tsx"/>
- <tileset firstgid="29" source="Water.tsx"/>
- <tileset firstgid="69" source="Terrain_1.tsx"/>
+ <tileset firstgid="1" source="../resources/Background.tsx"/>
+ <tileset firstgid="29" source="../resources/Water.tsx"/>
+ <tileset firstgid="69" source="../resources/Terrain_1.tsx"/>
  <layer id="1" name="Background" width="30" height="17">
   <data encoding="base64" compression="zlib">
    eJxjZGBgYBxBmHWAMOcoHtaYd4Cw4CimCxYdICw5ikcxDTAADusdpw==
