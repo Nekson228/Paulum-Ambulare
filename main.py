@@ -5,7 +5,7 @@ import pytmx
 
 # Игровые константы #
 SPEED = 10  # скорость персонажа
-JUMP_HEIGHT = 7  # высота прыжка персонажа
+JUMP_HEIGHT = 8  # высота прыжка персонажа
 MIN_FALL_SPEED = 1  # минимальная скорость падения
 MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость падения
 ASSETS = {  # используемые ассеты
@@ -57,9 +57,10 @@ class Character(pygame.sprite.Sprite):
         self.rect.h += 1
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
         self.rect.h -= 1
-        self_bottom = range(self.rect.bottomleft[0], self.rect.bottomright[0])
-        if collided_sprite and (collided_sprite.rect.right in self_bottom or collided_sprite.rect.left in self_bottom):
-            self.fall = False
+        if collided_sprite:
+            collided_top = range(collided_sprite.rect.topleft[0], collided_sprite.rect.topright[0])
+            if self.rect.left in collided_top or self.rect.right in collided_top:
+                self.fall = False
         else:
             self.fall = True
 
@@ -73,8 +74,10 @@ class Character(pygame.sprite.Sprite):
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_img, x, y):
+    def __init__(self, tile_img, x, y, block=False, half_block=False):
         super().__init__(all_sprites)
+        if block or half_block:
+            self.add(obstacles)
         self.image = tile_img
         self.image = pygame.transform.scale(self.image, (tile_width, tile_height))
         self.rect = self.image.get_rect().move(x, y)
@@ -94,7 +97,10 @@ class TiledMap:
             if tile:
                 Tile(tile, x * tile_width, y * tile_height)
         for tile_object in self.level_map.layernames['Objects']:
-            Tile(tile_object.image, tile_object.x, tile_object.y)
+            if tile_object.type == 'Block':
+                Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
+            elif tile_object.type == 'Half-Block':
+                Tile(tile_object.image, tile_object.x, tile_object.y, half_block=True)
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -152,7 +158,6 @@ if __name__ == '__main__':
     # Спрайты #
     all_sprites = pygame.sprite.Group()
     player_group = pygame.sprite.Group()
-    tiles_group = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
 
     # Игровые переменные #
@@ -163,8 +168,8 @@ if __name__ == '__main__':
     tile_size = tile_width, tile_height = game_map.get_tile_size()
     game_map.render()
 
-    character = Character(0, 0)
-    # character.check_standing()
+    character = Character(0, 19)
+    character.check_standing()
 
     # Основной цикл #
     while True:
@@ -179,6 +184,10 @@ if __name__ == '__main__':
             character.move(-SPEED, 0)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             character.move(SPEED, 0)
+        # if keys[pygame.K_UP] or keys[pygame.K_a]:
+        #     character.move(0, -SPEED)
+        # if keys[pygame.K_DOWN] or keys[pygame.K_d]:
+        #     character.move(0, SPEED)
         if keys[pygame.K_SPACE] and not character.fall and not character.jump:
             character.jump = character.check_jump_ability()
 
@@ -201,5 +210,4 @@ if __name__ == '__main__':
                 character.move(0, MAX_FALL_SPEED ** 2)
         elif not character.fall:
             fall_delta = MIN_FALL_SPEED
-
         display.update()
