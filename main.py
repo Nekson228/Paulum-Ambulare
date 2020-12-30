@@ -211,3 +211,4 @@ if __name__ == '__main__':
         elif not character.fall:
             fall_delta = MIN_FALL_SPEED
         display.update()
+# привет
