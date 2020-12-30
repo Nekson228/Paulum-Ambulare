@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="159">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="159">
  <tileset firstgid="1" source="../resources/Background.tsx"/>
  <tileset firstgid="29" source="../resources/Water.tsx"/>
  <tileset firstgid="69" source="../resources/Terrain_1.tsx"/>
@@ -8,7 +8,7 @@
    eJxjZGBgYBxBmHWAMOcoHtaYd4Cw4CimCxYdICw5ikcxDTAADusdpw==
   </data>
  </layer>
- <objectgroup id="7" name="Platforms">
+ <objectgroup id="7" name="Objects">
   <object id="6" type="Block" gid="85" x="0" y="240" width="16" height="16"/>
   <object id="7" type="Block" gid="147" x="0" y="224" width="16" height="16"/>
   <object id="8" type="Block" gid="84" x="16" y="224" width="16" height="16"/>
