@@ -203,3 +203,4 @@ if __name__ == '__main__':
             fall_delta = MIN_FALL_SPEED
 
         display.update()
+# привет
