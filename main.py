@@ -73,11 +73,11 @@ class Character(pygame.sprite.Sprite):
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_img, x, y, tile_w, tile_h):
+    def __init__(self, tile_img, x, y):
         super().__init__(all_sprites)
         self.image = tile_img
-        self.image = pygame.transform.scale(self.image, (tile_w, tile_h))
-        self.rect = self.image.get_rect().move(x * tile_w, y * tile_h)
+        self.image = pygame.transform.scale(self.image, (tile_width, tile_height))
+        self.rect = self.image.get_rect().move(x, y)
 
 
 class TiledMap:
@@ -85,13 +85,20 @@ class TiledMap:
         tmx_map = "main_maps/" + tmx_map
         self.level_map = pytmx.load_pygame(tmx_map, pixelalpha=True)
 
+    def get_tile_size(self):
+        return self.level_map.tilewidth, self.level_map.tileheight
+
     def render(self):
-        for layer in self.level_map.layers:
-            if isinstance(layer, pytmx.TiledTileLayer):
-                for x, y, gid in layer:
-                    tile = self.level_map.get_tile_image_by_gid(gid)
-                    if tile:
-                        Tile(tile, x, y, self.level_map.tilewidth, self.level_map.tileheight)
+        for x, y, gid in self.level_map.layernames['Background']:
+            tile = self.level_map.get_tile_image_by_gid(gid)
+            if tile:
+                Tile(tile, x * tile_width, y * tile_height)
+        for tile_object in self.level_map.layernames['Objects']:
+            Tile(tile_object.image, tile_object.x, tile_object.y)
+        for x, y, gid in self.level_map.layernames['Water']:
+            tile = self.level_map.get_tile_image_by_gid(gid)
+            if tile:
+                Tile(tile, x * tile_width, y * tile_height)
 
 
 class Camera:
@@ -153,10 +160,11 @@ if __name__ == '__main__':
     fall_delta = MIN_FALL_SPEED
 
     game_map = TiledMap('level_ex.tmx')  # карта уровня
+    tile_size = tile_width, tile_height = game_map.get_tile_size()
     game_map.render()
 
     character = Character(0, 0)
-    character.check_standing()
+    # character.check_standing()
 
     # Основной цикл #
     while True:
