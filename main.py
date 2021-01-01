@@ -64,13 +64,14 @@ class Character(pygame.sprite.Sprite):
         else:
             self.fall = True
 
-    def check_jump_ability(self):
+    def set_jump(self):
         self.rect.y -= 1
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
         self.rect.y += 1
         if collided_sprite:
-            return False
-        return True
+            self.jump = False
+        else:
+            self.jump = True
 
 
 class Tile(pygame.sprite.Sprite):
@@ -189,7 +190,7 @@ if __name__ == '__main__':
         # if keys[pygame.K_DOWN] or keys[pygame.K_d]:
         #     character.move(0, SPEED)
         if keys[pygame.K_SPACE] and not character.fall and not character.jump:
-            character.jump = character.check_jump_ability()
+            character.set_jump()
 
         if character.jump:
             if jump_delta >= -JUMP_HEIGHT:
