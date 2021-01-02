@@ -9,6 +9,8 @@ JUMP_HEIGHT = 8  # высота прыжка персонажа
 MIN_FALL_SPEED = 1  # минимальная скорость падения
 MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость падения
 FPS = 30  # частота обновления экрана (кадров в секунду)
+RIGHT = 1
+LEFT = -1
 
 
 def load_image(name: str) -> pygame.Surface:
@@ -23,12 +25,17 @@ def load_image(name: str) -> pygame.Surface:
 
 class Character(pygame.sprite.Sprite):
     # Константы персонажа #
-    ANIMATION_SPEED = 0.2
+    IDLE_ANIMATION_SPEED = 0.1
+    OTHER_ANIMATION_SPEED = 0.2
 
     # Анимации персонажа #
-    idle_animation = [
+    idle_animation_right = [
         load_image('character/adventurer-idle-00.png'),
         load_image('character/adventurer-idle-01.png')
+    ]
+    idle_animation_left = [
+        pygame.transform.flip(load_image('character/adventurer-idle-00.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-idle-01.png'), True, False),
     ]
     run_animation_right = [
         load_image('character/adventurer-run-00.png'),
@@ -46,34 +53,58 @@ class Character(pygame.sprite.Sprite):
         pygame.transform.flip(load_image('character/adventurer-run-04.png'), True, False),
         pygame.transform.flip(load_image('character/adventurer-run-05.png'), True, False),
     ]
+    jump_right = [
+        load_image('character/adventurer-jump-02.png')
+    ]
+    jump_left = [
+        pygame.transform.flip(load_image('character/adventurer-jump-02.png'), True, False)
+    ]
+    fall_right = [
+        load_image('character/adventurer-jump-03.png')
+    ]
+    fall_left = [
+        pygame.transform.flip(load_image('character/adventurer-jump-03.png'), True, False)
+    ]
 
     def __init__(self, x, y):
         super().__init__(player_group, all_sprites)
 
-        self.current_animation = Character.idle_animation
+        self.current_animation = Character.idle_animation_right
         self.animation_frame = 0
+        self.animation_speed = Character.IDLE_ANIMATION_SPEED
         self.image = self.current_animation[self.animation_frame]
         self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
+
+        self.facing = RIGHT
 
         self.jump = False
         self.fall = False
 
     def update(self):
-        self.animation_frame += Character.ANIMATION_SPEED
-        if self.animation_frame >= len(self.current_animation):
-            self.animation_frame = 0
+        self.animation_frame += self.animation_speed
+        self.animation_frame = round(self.animation_frame, 1)
+        self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
 
-        if x > 0 and self.current_animation != Character.run_animation_right:
-            self.current_animation = Character.run_animation_right
-            self.animation_frame = 0
-        elif x < 0 and self.current_animation != Character.run_animation_left:
-            self.current_animation = Character.run_animation_left
-            self.animation_frame = 0
+        if x != 0:
+            self.facing = RIGHT if x > 0 else LEFT
+            if not (self.jump or self.fall):
+                self.animation_speed = Character.OTHER_ANIMATION_SPEED
+                if x > 0 and self.current_animation != Character.run_animation_right:
+                    self.current_animation = Character.run_animation_right
+                    self.animation_frame = 0
+                elif x < 0 and self.current_animation != Character.run_animation_left:
+                    self.current_animation = Character.run_animation_left
+                    self.animation_frame = 0
+            else:
+                if self.jump:
+                    self.current_animation = Character.jump_right if self.facing == RIGHT else Character.jump_left
+                elif self.fall:
+                    self.current_animation = Character.fall_right if self.facing == RIGHT else Character.fall_left
 
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
         if collided_sprite:
@@ -95,22 +126,36 @@ class Character(pygame.sprite.Sprite):
         if collided_sprite:
             collided_top = range(collided_sprite.rect.topleft[0], collided_sprite.rect.topright[0])
             if self.rect.left in collided_top or self.rect.right in collided_top:
+                if self.fall:
+                    self.current_animation = Character.idle_animation_right \
+                        if self.facing == RIGHT else Character.idle_animation_left
                 self.fall = False
         else:
             self.fall = True
+            self.current_animation = Character.fall_right if self.facing == RIGHT else Character.fall_left
 
-    def set_jump(self):
-        self.rect.y -= 1
-        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
-        self.rect.y += 1
-        if collided_sprite:
-            self.jump = False
+    def set_jump(self, state):
+        if state is True:
+            self.rect.y -= 1
+            collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+            self.rect.y += 1
+            if collided_sprite:
+                self.jump = False
+            else:
+                self.jump = True
+                self.current_animation = Character.jump_right if self.facing == RIGHT else Character.jump_left
+                self.animation_frame = 0
         else:
-            self.jump = True
+            self.jump = False
 
     def set_standing(self):
-        self.current_animation = Character.idle_animation
-        self.animation_frame = 0
+        if self.current_animation in (Character.run_animation_right, Character.run_animation_left):
+            if self.facing == RIGHT:
+                self.current_animation = Character.idle_animation_right
+            elif self.facing == LEFT:
+                self.current_animation = Character.idle_animation_left
+            self.animation_frame = 0
+            self.animation_speed = Character.IDLE_ANIMATION_SPEED
 
 
 class Tile(pygame.sprite.Sprite):
@@ -192,7 +237,7 @@ if __name__ == '__main__':
     # Инициализация #
     pygame.init()
     pygame.display.set_caption('Untitled Nekit Game')
-    size = width, height = 640, 640
+    size = width, height = 1280, 640
     display = Display(size)
     pygame.mouse.set_visible(False)
 
@@ -228,7 +273,7 @@ if __name__ == '__main__':
         if not (keys[pygame.K_LEFT] or keys[pygame.K_a]) and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
             character.set_standing()
         if keys[pygame.K_SPACE] and not character.fall and not character.jump:
-            character.set_jump()
+            character.set_jump(True)
 
         if character.jump:
             if jump_delta >= -JUMP_HEIGHT:
@@ -237,7 +282,7 @@ if __name__ == '__main__':
                     jump_delta -= 1
                 else:
                     character.check_standing()
-                    character.jump = False
+                    character.set_jump(False)
                     jump_delta = JUMP_HEIGHT
                     character.check_standing()
 
