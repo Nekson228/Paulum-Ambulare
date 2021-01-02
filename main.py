@@ -184,8 +184,6 @@ class TiledMap:
         for tile_object in self.level_map.layernames['Objects']:
             if tile_object.type == 'Block':
                 Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
-            elif tile_object.type == 'Half-Block':
-                Tile(tile_object.image, tile_object.x, tile_object.y, half_block=True)
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
