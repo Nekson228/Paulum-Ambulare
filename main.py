@@ -4,19 +4,14 @@ import os
 import pytmx
 
 # Игровые константы #
-SPEED = 10  # скорость персонажа
+SPEED = 15  # скорость персонажа
 JUMP_HEIGHT = 8  # высота прыжка персонажа
 MIN_FALL_SPEED = 1  # минимальная скорость падения
 MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость падения
-ASSETS = {  # используемые ассеты
-    'character': 'character.png',
-    'tile': 'tile.png',
-    'obstacle': 'obstacle.png'
-}
 FPS = 30  # частота обновления экрана (кадров в секунду)
 
 
-def load_image(name):
+def load_image(name: str) -> pygame.Surface:
     fullname = os.path.join('resources', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
@@ -27,19 +22,59 @@ def load_image(name):
 
 
 class Character(pygame.sprite.Sprite):
-    image = load_image(ASSETS['character'])
+    # Константы персонажа #
+    ANIMATION_SPEED = 0.2
+
+    # Анимации персонажа #
+    idle_animation = [
+        load_image('character/adventurer-idle-00.png'),
+        load_image('character/adventurer-idle-01.png')
+    ]
+    run_animation_right = [
+        load_image('character/adventurer-run-00.png'),
+        load_image('character/adventurer-run-01.png'),
+        load_image('character/adventurer-run-02.png'),
+        load_image('character/adventurer-run-03.png'),
+        load_image('character/adventurer-run-04.png'),
+        load_image('character/adventurer-run-05.png'),
+    ]
+    run_animation_left = [
+        pygame.transform.flip(load_image('character/adventurer-run-00.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-run-01.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-run-02.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-run-03.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-run-04.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-run-05.png'), True, False),
+    ]
 
     def __init__(self, x, y):
         super().__init__(player_group, all_sprites)
-        self.image = Character.image
-        self.rect = self.image.get_rect().move(32 * x, 32 * y)
+
+        self.current_animation = Character.idle_animation
+        self.animation_frame = 0
+        self.image = self.current_animation[self.animation_frame]
+        self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
 
         self.jump = False
         self.fall = False
 
+    def update(self):
+        self.animation_frame += Character.ANIMATION_SPEED
+        if self.animation_frame >= len(self.current_animation):
+            self.animation_frame = 0
+        self.image = self.current_animation[int(self.animation_frame)]
+
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
+
+        if x > 0 and self.current_animation != Character.run_animation_right:
+            self.current_animation = Character.run_animation_right
+            self.animation_frame = 0
+        elif x < 0 and self.current_animation != Character.run_animation_left:
+            self.current_animation = Character.run_animation_left
+            self.animation_frame = 0
+
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
         if collided_sprite:
             if x > 0:
@@ -72,6 +107,10 @@ class Character(pygame.sprite.Sprite):
             self.jump = False
         else:
             self.jump = True
+
+    def set_standing(self):
+        self.current_animation = Character.idle_animation
+        self.animation_frame = 0
 
 
 class Tile(pygame.sprite.Sprite):
@@ -144,6 +183,7 @@ class Display:
         for sprite in all_sprites:
             self.camera.apply(sprite)
         all_sprites.draw(self.screen)
+        character.update()
 
         pygame.display.flip()
 
@@ -166,10 +206,10 @@ if __name__ == '__main__':
     fall_delta = MIN_FALL_SPEED
 
     game_map = TiledMap('level_ex.tmx')  # карта уровня
-    tile_size = tile_width, tile_height = game_map.get_tile_size()
+    tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов
     game_map.render()
 
-    character = Character(0, 19)
+    character = Character(0, 0)
     character.check_standing()
 
     # Основной цикл #
@@ -185,10 +225,8 @@ if __name__ == '__main__':
             character.move(-SPEED, 0)
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             character.move(SPEED, 0)
-        # if keys[pygame.K_UP] or keys[pygame.K_a]:
-        #     character.move(0, -SPEED)
-        # if keys[pygame.K_DOWN] or keys[pygame.K_d]:
-        #     character.move(0, SPEED)
+        if not (keys[pygame.K_LEFT] or keys[pygame.K_a]) and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
+            character.set_standing()
         if keys[pygame.K_SPACE] and not character.fall and not character.jump:
             character.set_jump()
 
@@ -212,4 +250,3 @@ if __name__ == '__main__':
         elif not character.fall:
             fall_delta = MIN_FALL_SPEED
         display.update()
-# привет
