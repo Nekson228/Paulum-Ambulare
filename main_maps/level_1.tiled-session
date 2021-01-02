@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "level_ex.tmx",
+    "activeFile": "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx",
     "expandedProjectPaths": [
         "."
     ],
@@ -49,16 +49,16 @@
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 806.6666666666667,
-                "y": 206
+                "x": 802.6666666666667,
+                "y": 202
             }
         },
         "level_ex.tmx": {
-            "scale": 0.75,
+            "scale": 0.25,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1428,
-                "y": 585.3333333333333
+                "x": 1064,
+                "y": 748
             }
         },
         "level_ex.tmx#Background": {
@@ -86,10 +86,10 @@
     "project": "level_1.tiled-project",
     "recentFiles": [
         "level_1.tmx",
+        "level_ex.tmx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Water.tsx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Background.tsx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx",
-        "level_ex.tmx",
         "Background.tsx",
         "Water.tsx",
         "Terrain_1.tsx",
