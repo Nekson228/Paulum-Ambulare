@@ -65,12 +65,63 @@ class Character(pygame.sprite.Sprite):
     fall_left = [
         pygame.transform.flip(load_image('character/adventurer-jump-03.png'), True, False)
     ]
+    attack_animations_right = [
+        [
+            load_image('character/adventurer-attack1-00.png'),
+            load_image('character/adventurer-attack1-01.png'),
+            load_image('character/adventurer-attack1-02.png'),
+            load_image('character/adventurer-attack1-03.png'),
+            load_image('character/adventurer-attack1-04.png'),
+        ],
+        [
+            load_image('character/adventurer-attack2-00.png'),
+            load_image('character/adventurer-attack2-01.png'),
+            load_image('character/adventurer-attack2-02.png'),
+            load_image('character/adventurer-attack2-03.png'),
+            load_image('character/adventurer-attack2-04.png'),
+            load_image('character/adventurer-attack2-05.png'),
+        ],
+        [
+            load_image('character/adventurer-attack3-00.png'),
+            load_image('character/adventurer-attack3-01.png'),
+            load_image('character/adventurer-attack3-02.png'),
+            load_image('character/adventurer-attack3-03.png'),
+            load_image('character/adventurer-attack3-04.png'),
+            load_image('character/adventurer-attack3-05.png'),
+        ]
+    ]
+    attack_animations_left = [
+        [
+            pygame.transform.flip(load_image('character/adventurer-attack1-00.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack1-01.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack1-02.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack1-03.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack1-04.png'), True, False),
+        ],
+        [
+            pygame.transform.flip(load_image('character/adventurer-attack2-00.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack2-01.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack2-02.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack2-03.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack2-04.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack2-05.png'), True, False),
+        ],
+        [
+            pygame.transform.flip(load_image('character/adventurer-attack3-00.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack3-01.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack3-02.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack3-03.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack3-04.png'), True, False),
+            pygame.transform.flip(load_image('character/adventurer-attack3-05.png'), True, False),
+        ],
+    ]
 
     def __init__(self, x, y):
         super().__init__(player_group, all_sprites)
 
         self.current_animation = Character.idle_animation_right
         self.animation_frame = 0
+        self.attack_animation_type = 0
         self.animation_speed = Character.IDLE_ANIMATION_SPEED
         self.image = self.current_animation[self.animation_frame]
         self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
@@ -79,10 +130,19 @@ class Character(pygame.sprite.Sprite):
 
         self.jump = False
         self.fall = False
+        self.attack = False
 
     def update(self):
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
+        if self.current_animation in Character.attack_animations_right or \
+                self.current_animation in Character.attack_animations_left:
+            if self.animation_frame == len(self.current_animation):
+                self.current_animation = Character.idle_animation_right if self.facing == RIGHT \
+                    else Character.idle_animation_left
+                self.animation_frame = 0
+                self.animation_speed = Character.IDLE_ANIMATION_SPEED
+                self.attack = False
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
@@ -129,6 +189,7 @@ class Character(pygame.sprite.Sprite):
                 if self.fall:
                     self.current_animation = Character.idle_animation_right \
                         if self.facing == RIGHT else Character.idle_animation_left
+                    self.animation_speed = Character.IDLE_ANIMATION_SPEED
                 self.fall = False
         else:
             self.fall = True
@@ -150,12 +211,22 @@ class Character(pygame.sprite.Sprite):
 
     def set_standing(self):
         if self.current_animation in (Character.run_animation_right, Character.run_animation_left):
-            if self.facing == RIGHT:
-                self.current_animation = Character.idle_animation_right
-            elif self.facing == LEFT:
-                self.current_animation = Character.idle_animation_left
+            self.current_animation = Character.idle_animation_right if self.facing == RIGHT \
+                else Character.idle_animation_left
             self.animation_frame = 0
             self.animation_speed = Character.IDLE_ANIMATION_SPEED
+
+    def set_attack(self):
+        if not self.attack and not self.jump and not self.fall:
+            self.attack = True
+            self.current_animation = Character.attack_animations_right[self.attack_animation_type] \
+                if self.facing == RIGHT \
+                else Character.attack_animations_left[self.attack_animation_type]
+            self.animation_frame = 0
+            self.attack_animation_type += 1
+            if self.attack_animation_type == len(Character.attack_animations_right):
+                self.attack_animation_type = 0
+            self.animation_speed = Character.OTHER_ANIMATION_SPEED
 
 
 class Tile(pygame.sprite.Sprite):
@@ -261,17 +332,20 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
+                character.set_attack()
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            character.move(-SPEED, 0)
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            character.move(SPEED, 0)
-        if not (keys[pygame.K_LEFT] or keys[pygame.K_a]) and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
-            character.set_standing()
-        if keys[pygame.K_SPACE] and not character.fall and not character.jump:
-            character.set_jump(True)
+        if not character.attack:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                character.move(-SPEED, 0)
+            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                character.move(SPEED, 0)
+            if not (keys[pygame.K_LEFT] or keys[pygame.K_a]) and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
+                character.set_standing()
+            if keys[pygame.K_SPACE] and not character.fall and not character.jump:
+                character.set_jump(True)
 
         if character.jump:
             if jump_delta >= -JUMP_HEIGHT:
