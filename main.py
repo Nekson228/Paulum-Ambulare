@@ -4,7 +4,7 @@ import os
 import pytmx
 
 # Игровые константы #
-SPEED = 15  # скорость персонажа
+SPEED = 10  # скорость персонажа
 JUMP_HEIGHT = 8  # высота прыжка персонажа
 MIN_FALL_SPEED = 1  # минимальная скорость падения
 MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость падения
@@ -275,9 +275,13 @@ class Camera:
     def __init__(self):
         self.dx = 0
         self.dy = 0
+
         self.target = None
 
-    def set_target(self, target):
+        self.scroll_x = True
+        self.scroll_y = True
+
+    def set_target(self, target: pygame.sprite.Sprite):
         self.target = target
 
     # сдвинуть объект obj на смещение камеры
@@ -285,14 +289,23 @@ class Camera:
         if isinstance(obj, pygame.sprite.Sprite):
             obj.rect.x += self.dx
             obj.rect.y += self.dy
+
         elif isinstance(obj, pygame.Rect):
             obj.x += self.dx
             obj.y += self.dy
+            if obj.x + obj.w <= display_width:
+                self.scroll_x = False
+            if obj.x >= 0:
+                self.scroll_x = False
+            if obj.y + obj.h <= display_height:
+                self.scroll_y = False
+            if obj.y >= 0:
+                self.scroll_y = False
 
     # позиционировать камеру на объекте target
-    def update(self, target):
-        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+    def update(self):
+        self.dx = -(self.target.rect.x + self.target.rect.w // 2 - display_width // 2) if self.scroll_x else 0
+        self.dy = -(self.target.rect.y + self.target.rect.h // 2 - display_height // 2) if self.scroll_y else 0
 
 
 class Display:
@@ -308,7 +321,7 @@ class Display:
     def update(self):
         self.clock.tick(FPS)
         self.screen.fill('black')
-        self.camera.update(character)
+        self.camera.update()
 
         for sprite in all_sprites:
             self.camera.apply(sprite)
@@ -323,7 +336,7 @@ if __name__ == '__main__':
     # Инициализация #
     pygame.init()
     pygame.display.set_caption('Untitled Nekit Game')
-    size = width, height = 640, 640
+    display_size = display_width, display_height = 640, 640
     pygame.mouse.set_visible(False)
 
     # Спрайты #
@@ -335,14 +348,14 @@ if __name__ == '__main__':
     jump_delta = JUMP_HEIGHT
     fall_delta = MIN_FALL_SPEED
 
-    display = Display(size)
+    display = Display(display_size)
     game_map = TiledMap('level_ex.tmx')  # карта уровня
     tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов в пикселях
     level_tiles = level_width, level_height = game_map.get_level_size()  # размер уровня в тайлах
     display.set_level_size((level_width * tile_width, level_height * tile_height))
     game_map.render()
 
-    character = Character(0, 0)
+    character = Character(10, 5)
     character.check_standing()
 
     display.camera.set_target(character)
@@ -388,4 +401,3 @@ if __name__ == '__main__':
         elif not character.fall:
             fall_delta = MIN_FALL_SPEED
         display.update()
-        print(character.rect, display.screen_rect, sep='\n', end='\n\n')

@@ -49,16 +49,16 @@
             "scale": 0.75,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 802.6666666666667,
-                "y": 202
+                "x": 802,
+                "y": 201.33333333333331
             }
         },
         "level_ex.tmx": {
             "scale": 0.25,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1064,
-                "y": 748
+                "x": 1066,
+                "y": 962
             }
         },
         "level_ex.tmx#Background": {
