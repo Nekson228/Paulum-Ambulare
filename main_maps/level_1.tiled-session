@@ -1,0 +1,105 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "Background.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Background.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Water.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Static_Objects.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Terrain_1.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Water.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "level_1.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 802.6666666666667,
+                "y": 202
+            }
+        },
+        "level_ex.tmx": {
+            "scale": 0.25,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1064,
+                "y": 748
+            }
+        },
+        "level_ex.tmx#Background": {
+            "dynamicWrapping": true
+        },
+        "tmw_desert_spacing.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "map.height": 17,
+    "map.lastUsedFormat": "tmx",
+    "map.layerDataFormat": null,
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 30,
+    "openFiles": [
+        "level_1.tmx",
+        "level_ex.tmx",
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx",
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Background.tsx",
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Water.tsx"
+    ],
+    "project": "level_1.tiled-project",
+    "recentFiles": [
+        "level_1.tmx",
+        "level_ex.tmx",
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Water.tsx",
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Background.tsx",
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx",
+        "Background.tsx",
+        "Water.tsx",
+        "Terrain_1.tsx",
+        "Static_Objects.tsx",
+        "tmw_desert_spacing.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 64,
+        "width": 64
+    },
+    "tileset.type": 0
+}

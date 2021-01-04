@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="64" tileheight="64" infinite="0" nextlayerid="9" nextobjectid="164">
+ <tileset firstgid="1" source="../resources/Terrain_1.tsx"/>
+ <tileset firstgid="151" source="../resources/Background.tsx"/>
+ <tileset firstgid="179" source="../resources/Water.tsx"/>
+ <layer id="1" name="Background" width="30" height="17">
+  <data encoding="base64" compression="zlib">
+   eJybzsDAMH0U0xzPHiA8fxQPa7x4gPDyUUwXvHqA8PpRPKwxAPrHRbo=
+  </data>
+ </layer>
+ <objectgroup id="7" name="Objects">
+  <object id="6" type="Block" gid="17" x="0.030303" y="960.933" width="64" height="64"/>
+  <object id="7" type="Block" gid="79" x="0.030303" y="896.917" width="64" height="64"/>
+  <object id="8" type="Block" gid="16" x="64.0465" y="896.917" width="64" height="64"/>
+  <object id="9" type="Block" gid="17" x="128.063" y="896.917" width="64" height="64"/>
+  <object id="10" type="Block" gid="31" x="64.0465" y="960.933" width="64" height="64"/>
+  <object id="11" type="Block" gid="32" x="128.063" y="960.933" width="64" height="64"/>
+  <object id="14" type="Block" gid="4" x="128.063" y="832.901" width="64" height="64"/>
+  <object id="15" type="Block" gid="111" x="192.079" y="832.901" width="64" height="64"/>
+  <object id="16" type="Block" gid="126" x="192.079" y="896.917" width="64" height="64"/>
+  <object id="17" type="Block" gid="33" x="192.079" y="960.933" width="64" height="64"/>
+  <object id="18" type="Block" gid="48" x="192.079" y="1024.95" width="64" height="64"/>
+  <object id="19" type="Block" gid="19" x="320.111" y="832.901" width="64" height="64"/>
+  <object id="20" type="Block" gid="20" x="384.127" y="832.901" width="64" height="64"/>
+  <object id="21" type="Block" gid="34" x="320.111" y="896.917" width="64" height="64"/>
+  <object id="22" type="Block" gid="35" x="384.127" y="896.917" width="64" height="64"/>
+  <object id="23" type="Block" gid="33" x="320.111" y="960.933" width="64" height="64"/>
+  <object id="24" type="Block" gid="33" x="384.127" y="960.933" width="64" height="64"/>
+  <object id="25" type="Block" gid="48" x="320.111" y="1024.95" width="64" height="64"/>
+  <object id="26" type="Block" gid="48" x="384.127" y="1024.95" width="64" height="64"/>
+  <object id="27" type="Block" gid="4" x="512.16" y="832.901" width="64" height="64"/>
+  <object id="28" type="Block" gid="18" x="540.167" y="896.917" width="64" height="64"/>
+  <object id="29" type="Block" gid="111" x="576.176" y="832.901" width="64" height="64"/>
+  <object id="30" type="Block" gid="126" x="576.176" y="896.917" width="64" height="64"/>
+  <object id="32" type="Block" gid="1" x="640.192" y="896.917" width="64" height="64"/>
+  <object id="33" type="Block" gid="16" x="576.176" y="960.933" width="64" height="64"/>
+  <object id="34" type="Block" gid="17" x="640.192" y="960.933" width="64" height="64"/>
+  <object id="35" type="Block" gid="31" x="576.176" y="1024.95" width="64" height="64"/>
+  <object id="36" type="Block" gid="32" x="640.192" y="1024.95" width="64" height="64"/>
+  <object id="37" type="Block" gid="3" x="704.208" y="932.926" width="64" height="64"/>
+  <object id="38" type="Block" gid="79" x="704.208" y="896.917" width="64" height="64"/>
+  <object id="39" type="Block" gid="111" x="832.24" y="832.901" width="64" height="64"/>
+  <object id="40" type="Block" gid="126" x="832.24" y="896.917" width="64" height="64"/>
+  <object id="41" type="Block" gid="16" x="832.24" y="960.933" width="64" height="64"/>
+  <object id="42" type="Block" gid="17" x="896.257" y="960.933" width="64" height="64"/>
+  <object id="43" type="Block" gid="32" x="896.257" y="1024.95" width="64" height="64"/>
+  <object id="44" type="Block" gid="31" x="832.24" y="1024.95" width="64" height="64"/>
+  <object id="45" type="Block" gid="1" x="896.257" y="896.917" width="64" height="64"/>
+  <object id="46" type="Block" gid="46" x="896.257" y="832.901" width="64" height="64"/>
+  <object id="47" type="Block" gid="47" x="960.273" y="832.901" width="64" height="64"/>
+  <object id="48" type="Block" gid="4" x="896.257" y="768.885" width="64" height="64"/>
+  <object id="49" type="Block" gid="16" x="960.273" y="896.917" width="64" height="64"/>
+  <object id="50" type="Block" gid="17" x="1024.29" y="896.917" width="64" height="64"/>
+  <object id="51" type="Block" gid="31" x="960.273" y="960.933" width="64" height="64"/>
+  <object id="52" type="Block" gid="32" x="1024.29" y="960.933" width="64" height="64"/>
+  <object id="53" type="Block" gid="16" x="1088.31" y="960.933" width="64" height="64"/>
+  <object id="54" type="Block" gid="17" x="1152.32" y="960.933" width="64" height="64"/>
+  <object id="55" type="Block" gid="31" x="1088.31" y="1024.95" width="64" height="64"/>
+  <object id="56" type="Block" gid="32" x="1152.32" y="1024.95" width="64" height="64"/>
+  <object id="57" type="Block" gid="1" x="1024.29" y="832.901" width="64" height="64"/>
+  <object id="58" type="Block" gid="34" x="960.273" y="768.885" width="64" height="64"/>
+  <object id="59" type="Block" gid="35" x="1024.29" y="768.885" width="64" height="64"/>
+  <object id="60" type="Block" gid="19" x="960.273" y="704.869" width="64" height="64"/>
+  <object id="61" type="Block" gid="20" x="1024.29" y="704.869" width="64" height="64"/>
+  <object id="62" type="Block" gid="51" x="1088.31" y="896.917" width="64" height="64"/>
+  <object id="63" type="Block" gid="36" x="1088.31" y="832.901" width="64" height="64"/>
+  <object id="64" type="Block" gid="1" x="1152.32" y="896.917" width="64" height="64"/>
+  <object id="65" type="Block" gid="79" x="1152.32" y="832.901" width="64" height="64"/>
+  <object id="66" type="Block" gid="79" x="1216.34" y="896.917" width="64" height="64"/>
+  <object id="67" type="Block" gid="33" x="1216.34" y="960.933" width="64" height="64"/>
+  <object id="68" type="Block" gid="48" x="1216.34" y="1024.95" width="64" height="64"/>
+  <object id="69" type="Block" gid="19" x="1280.35" y="896.917" width="64" height="64"/>
+  <object id="70" type="Block" gid="20" x="1344.37" y="896.917" width="64" height="64"/>
+  <object id="71" type="Block" gid="35" x="1344.37" y="960.933" width="64" height="64"/>
+  <object id="72" type="Block" gid="34" x="1280.35" y="960.933" width="64" height="64"/>
+  <object id="73" type="Block" gid="111" x="1408.39" y="896.917" width="64" height="64"/>
+  <object id="74" type="Block" gid="51" x="1408.39" y="960.933" width="64" height="64"/>
+  <object id="75" type="Block" gid="1" x="1472.4" y="896.917" width="64" height="64"/>
+  <object id="76" type="Block" gid="16" x="1472.4" y="960.933" width="64" height="64"/>
+  <object id="77" type="Block" gid="17" x="1536.42" y="960.933" width="64" height="64"/>
+  <object id="78" type="Block" gid="32" x="1536.42" y="1024.95" width="64" height="64"/>
+  <object id="79" type="Block" gid="31" x="1472.4" y="1024.95" width="64" height="64"/>
+  <object id="80" type="Block" gid="32" x="0.030303" y="1024.95" width="64" height="64"/>
+  <object id="82" type="Block" gid="34" x="1536.42" y="896.917" width="64" height="64"/>
+  <object id="83" type="Block" gid="35" x="1600.43" y="896.917" width="64" height="64"/>
+  <object id="84" type="Block" gid="33" x="1600.43" y="960.933" width="64" height="64"/>
+  <object id="85" type="Block" gid="48" x="1600.43" y="1024.95" width="64" height="64"/>
+  <object id="86" type="Block" gid="20" x="1600.43" y="832.901" width="64" height="64"/>
+  <object id="87" type="Block" gid="19" x="1536.42" y="832.901" width="64" height="64"/>
+  <object id="88" type="Block" gid="111" x="1664.45" y="960.933" width="64" height="64"/>
+  <object id="89" type="Block" gid="126" x="1664.45" y="1024.95" width="64" height="64"/>
+  <object id="90" type="Block" gid="19" x="1728.47" y="960.933" width="64" height="64"/>
+  <object id="91" type="Block" gid="20" x="1792.48" y="960.933" width="64" height="64"/>
+  <object id="92" type="Block" gid="35" x="1792.48" y="1024.95" width="64" height="64"/>
+  <object id="93" type="Block" gid="34" x="1728.47" y="1024.95" width="64" height="64"/>
+  <object id="94" type="Block" gid="33" x="1856.5" y="960.933" width="64" height="64"/>
+  <object id="95" type="Block" gid="48" x="1856.5" y="1024.95" width="64" height="64"/>
+  <object id="96" type="Block" gid="4" x="1856.5" y="896.917" width="64" height="64"/>
+  <object id="100" type="Block" gid="2" x="1472.4" y="672.861" width="64" height="64"/>
+  <object id="102" type="Block" gid="33" x="1472.4" y="576.836" width="64" height="64"/>
+  <object id="103" type="Block" gid="48" x="1472.4" y="640.853" width="64" height="64"/>
+  <object id="104" gid="3" x="1536.42" y="612.845" width="64" height="64"/>
+  <object id="105" type="Block" gid="4" x="1472.4" y="512.82" width="64" height="64"/>
+  <object id="106" type="Block" gid="31" x="1536.42" y="576.836" width="64" height="64"/>
+  <object id="107" type="Block" gid="32" x="1600.43" y="576.836" width="64" height="64"/>
+  <object id="108" type="Block" gid="16" x="1536.42" y="512.82" width="64" height="64"/>
+  <object id="109" type="Block" gid="17" x="1600.43" y="512.82" width="64" height="64"/>
+  <object id="110" type="Block" gid="2" x="1600.43" y="612.845" width="64" height="64"/>
+  <object id="112" type="Block" gid="79" x="1600.43" y="448.804" width="64" height="64"/>
+  <object id="113" type="Block" gid="36" x="1664.45" y="448.804" width="64" height="64"/>
+  <object id="114" type="Block" gid="51" x="1664.45" y="512.82" width="64" height="64"/>
+  <object id="115" type="Block" gid="16" x="1664.45" y="576.836" width="64" height="64"/>
+  <object id="116" type="Block" gid="17" x="1728.47" y="576.836" width="64" height="64"/>
+  <object id="117" type="Block" gid="32" x="1728.47" y="640.853" width="64" height="64"/>
+  <object id="118" type="Block" gid="31" x="1664.45" y="640.853" width="64" height="64"/>
+  <object id="119" type="Block" gid="3" x="1792.48" y="612.845" width="64" height="64"/>
+  <object id="120" type="Block" gid="79" x="1792.48" y="576.836" width="64" height="64"/>
+  <object id="121" type="Block" gid="1" x="1728.47" y="512.82" width="64" height="64"/>
+  <object id="122" type="Block" gid="79" x="1728.47" y="448.804" width="64" height="64"/>
+  <object id="123" type="Block" gid="2" x="1024.29" y="484.813" width="64" height="64"/>
+  <object id="124" type="Block" gid="3" x="1116.31" y="484.813" width="64" height="64"/>
+  <object id="125" type="Block" gid="4" x="1024.29" y="448.804" width="64" height="64"/>
+  <object id="126" type="Block" gid="79" x="1088.31" y="448.804" width="64" height="64"/>
+  <object id="127" type="Block" gid="19" x="1152.32" y="448.804" width="64" height="64"/>
+  <object id="128" type="Block" gid="20" x="1216.34" y="448.804" width="64" height="64"/>
+  <object id="129" type="Block" gid="34" x="1152.32" y="512.82" width="64" height="64"/>
+  <object id="130" type="Block" gid="35" x="1216.34" y="512.82" width="64" height="64"/>
+  <object id="131" type="Block" gid="4" x="704.208" y="640.853" width="64" height="64"/>
+  <object id="132" type="Block" gid="1" x="640.192" y="640.853" width="64" height="64"/>
+  <object id="133" type="Block" gid="63" x="576.176" y="612.845" width="64" height="64"/>
+  <object id="134" type="Block" gid="62" x="512.16" y="612.845" width="64" height="64"/>
+  <object id="135" type="Block" gid="48" x="512.16" y="576.836" width="64" height="64"/>
+  <object id="136" type="Block" gid="33" x="512.16" y="512.82" width="64" height="64"/>
+  <object id="137" type="Block" gid="34" x="576.176" y="576.836" width="64" height="64"/>
+  <object id="138" type="Block" gid="35" x="640.192" y="576.836" width="64" height="64"/>
+  <object id="139" type="Block" gid="20" x="640.192" y="512.82" width="64" height="64"/>
+  <object id="140" type="Block" gid="19" x="576.176" y="512.82" width="64" height="64"/>
+  <object id="142" type="Block" gid="1" x="448.143" y="576.836" width="64" height="64"/>
+  <object id="143" type="Block" gid="47" x="384.127" y="576.836" width="64" height="64"/>
+  <object id="144" type="Block" gid="46" x="320.111" y="576.836" width="64" height="64"/>
+  <object id="145" type="Block" gid="34" x="384.127" y="512.82" width="64" height="64"/>
+  <object id="146" type="Block" gid="35" x="448.143" y="512.82" width="64" height="64"/>
+  <object id="147" type="Block" gid="95" x="448.143" y="448.804" width="64" height="64"/>
+  <object id="148" type="Block" gid="94" x="384.127" y="448.804" width="64" height="64"/>
+  <object id="149" type="Block" gid="1" x="320.111" y="512.82" width="64" height="64"/>
+  <object id="151" type="Block" gid="2" x="320.111" y="612.845" width="64" height="64"/>
+  <object id="152" type="Block" gid="1" x="256.095" y="640.853" width="64" height="64"/>
+  <object id="153" type="Block" gid="4" x="256.095" y="576.836" width="64" height="64"/>
+  <object id="155" type="Block" gid="48" x="192.079" y="640.853" width="64" height="64"/>
+  <object id="157" type="Block" gid="4" x="128.063" y="640.853" width="64" height="64"/>
+  <object id="159" type="Block" gid="4" x="0" y="704" width="64" height="64"/>
+  <object id="160" type="Block" gid="111" x="192" y="576.84" width="64" height="64"/>
+  <object id="162" type="Block" gid="124" x="1406" y="704" width="64" height="64"/>
+  <object id="163" gid="4" x="1282.34" y="512.82" width="64" height="64"/>
+ </objectgroup>
+ <layer id="2" name="Water" width="30" height="17">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMAoGHmweIHx5hGEAWvxGbw==
+  </data>
+ </layer>
+</map>
