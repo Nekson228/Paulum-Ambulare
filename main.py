@@ -11,6 +11,7 @@ MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость пад
 FPS = 30  # частота обновления экрана (кадров в секунду)
 RIGHT = 1
 LEFT = -1
+TEST_MODE = False
 
 
 def terminate():
@@ -182,8 +183,9 @@ class Character(pygame.sprite.Sprite):
                 self.rect.y = collided_sprite.rect.y - self.rect.h
             elif y < 0:
                 self.rect.y = collided_sprite.rect.y + collided_sprite.rect.h
-        if not self.jump:
-            self.check_standing()
+        if TEST_MODE is False:
+            if not self.jump:
+                self.check_standing()
 
     def check_standing(self):
         self.rect.h += 1
@@ -281,31 +283,51 @@ class Camera:
         self.scroll_x = True
         self.scroll_y = True
 
+        self.top_blocked = self.bottom_blocked = self.right_blocked = self.left_blocked = False
+
     def set_target(self, target: pygame.sprite.Sprite):
         self.target = target
 
     # сдвинуть объект obj на смещение камеры
     def apply(self, obj):
         if isinstance(obj, pygame.sprite.Sprite):
-            obj.rect.x += self.dx
-            obj.rect.y += self.dy
+            obj.rect.x += self.dx if self.scroll_x else 0
+            obj.rect.y += self.dy if self.scroll_y else 0
 
         elif isinstance(obj, pygame.Rect):
-            obj.x += self.dx
-            obj.y += self.dy
+            obj.x += self.dx if self.scroll_x else 0
+            obj.y += self.dy if self.scroll_y else 0
             if obj.x + obj.w <= display_width:
                 self.scroll_x = False
+                self.right_blocked = True
             if obj.x >= 0:
                 self.scroll_x = False
+                self.left_blocked = True
             if obj.y + obj.h <= display_height:
                 self.scroll_y = False
+                self.bottom_blocked = True
             if obj.y >= 0:
                 self.scroll_y = False
+                self.top_blocked = True
 
     # позиционировать камеру на объекте target
     def update(self):
-        self.dx = -(self.target.rect.x + self.target.rect.w // 2 - display_width // 2) if self.scroll_x else 0
-        self.dy = -(self.target.rect.y + self.target.rect.h // 2 - display_height // 2) if self.scroll_y else 0
+        self.dx = -(self.target.rect.x + self.target.rect.w // 2 - display_width // 2)
+        self.dy = -(self.target.rect.y + self.target.rect.h // 2 - display_height // 2)
+        if self.scroll_x is False:
+            if self.target.rect.x >= display_width // 2 and self.left_blocked:
+                self.scroll_x = True
+                self.left_blocked = False
+            elif self.target.rect.x + self.target.rect.w <= display_width // 2 and self.right_blocked:
+                self.scroll_x = True
+                self.right_blocked = False
+        if self.scroll_y is False:
+            if self.target.rect.y >= display_height // 2 and self.top_blocked:
+                self.scroll_y = True
+                self.top_blocked = False
+            elif self.target.rect.y + self.target.rect.h <= display_height // 2 and self.bottom_blocked:
+                self.scroll_y = True
+                self.bottom_blocked = False
 
 
 class Display:
@@ -321,8 +343,8 @@ class Display:
     def update(self):
         self.clock.tick(FPS)
         self.screen.fill('black')
-        self.camera.update()
 
+        self.camera.update()
         for sprite in all_sprites:
             self.camera.apply(sprite)
         self.camera.apply(self.screen_rect)
@@ -376,6 +398,11 @@ if __name__ == '__main__':
                 character.move(-SPEED, 0)
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
                 character.move(SPEED, 0)
+            if TEST_MODE is True:
+                if keys[pygame.K_UP]:
+                    character.move(0, -SPEED)
+                if keys[pygame.K_DOWN]:
+                    character.move(0, SPEED)
             if not (keys[pygame.K_LEFT] or keys[pygame.K_a]) and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
                 character.set_standing()
             if keys[pygame.K_SPACE] and not character.fall and not character.jump:
