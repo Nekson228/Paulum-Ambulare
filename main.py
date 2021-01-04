@@ -26,6 +26,7 @@ def load_image(name: str) -> pygame.Surface:
 class Character(pygame.sprite.Sprite):
     # Константы персонажа #
     IDLE_ANIMATION_SPEED = 0.1
+    ATTACK_ANIMATION_SPEED = 0.4
     OTHER_ANIMATION_SPEED = 0.2
 
     # Анимации персонажа #
@@ -137,7 +138,7 @@ class Character(pygame.sprite.Sprite):
         self.animation_frame = round(self.animation_frame, 1)
         if self.current_animation in Character.attack_animations_right or \
                 self.current_animation in Character.attack_animations_left:
-            if self.animation_frame == len(self.current_animation):
+            if self.animation_frame >= len(self.current_animation):
                 self.current_animation = Character.idle_animation_right if self.facing == RIGHT \
                     else Character.idle_animation_left
                 self.animation_frame = 0
@@ -226,7 +227,7 @@ class Character(pygame.sprite.Sprite):
             self.attack_animation_type += 1
             if self.attack_animation_type == len(Character.attack_animations_right):
                 self.attack_animation_type = 0
-            self.animation_speed = Character.OTHER_ANIMATION_SPEED
+            self.animation_speed = Character.ATTACK_ANIMATION_SPEED
 
 
 class Tile(pygame.sprite.Sprite):
