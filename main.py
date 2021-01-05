@@ -7,7 +7,7 @@ import pytmx
 SPEED = 10  # скорость персонажа
 JUMP_HEIGHT = 8  # высота прыжка персонажа
 MIN_FALL_SPEED = 1  # минимальная скорость падения
-MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость падения
+MAX_FALL_SPEED = JUMP_HEIGHT - 1  # максимальная скорость падения
 FPS = 30  # частота обновления экрана (кадров в секунду)
 RIGHT = 1
 LEFT = -1
@@ -89,11 +89,13 @@ class Character(pygame.sprite.Sprite):
     jump_left = [
         pygame.transform.flip(load_image('character/adventurer-jump-02.png'), True, False)
     ]
-    fall_right = [
-        load_image('character/adventurer-jump-03.png')
+    fall_animation_right = [
+        load_image('character/adventurer-fall-00.png'),
+        load_image('character/adventurer-fall-01.png'),
     ]
-    fall_left = [
-        pygame.transform.flip(load_image('character/adventurer-jump-03.png'), True, False)
+    fall_animation_left = [
+        pygame.transform.flip(load_image('character/adventurer-fall-00.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-fall-01.png'), True, False)
     ]
     attack_animations_right = [
         [
@@ -164,20 +166,6 @@ class Character(pygame.sprite.Sprite):
         self.fall = False
         self.attack = False
 
-    def update(self):
-        self.animation_frame += self.animation_speed
-        self.animation_frame = round(self.animation_frame, 1)
-        if self.current_animation in Character.attack_animations_right or \
-                self.current_animation in Character.attack_animations_left:
-            if self.animation_frame >= len(self.current_animation):
-                self.current_animation = Character.idle_animation_right if self.facing == RIGHT \
-                    else Character.idle_animation_left
-                self.animation_frame = 0
-                self.animation_speed = Character.IDLE_ANIMATION_SPEED
-                self.attack = False
-        self.animation_frame %= len(self.current_animation)
-        self.image = self.current_animation[int(self.animation_frame)]
-
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
@@ -196,7 +184,8 @@ class Character(pygame.sprite.Sprite):
                 if self.jump:
                     self.current_animation = Character.jump_right if self.facing == RIGHT else Character.jump_left
                 elif self.fall:
-                    self.current_animation = Character.fall_right if self.facing == RIGHT else Character.fall_left
+                    self.current_animation = Character.fall_animation_right \
+                        if self.facing == RIGHT else Character.fall_animation_left
 
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
         if collided_sprite:
@@ -226,7 +215,8 @@ class Character(pygame.sprite.Sprite):
                 self.fall = False
         else:
             self.fall = True
-            self.current_animation = Character.fall_right if self.facing == RIGHT else Character.fall_left
+            self.current_animation = Character.fall_animation_right \
+                if self.facing == RIGHT else Character.fall_animation_left
 
     def set_jump(self, state):
         if state is True:
@@ -261,6 +251,20 @@ class Character(pygame.sprite.Sprite):
             if self.attack_animation_type == len(Character.attack_animations_right):
                 self.attack_animation_type = 0
             self.animation_speed = Character.ATTACK_ANIMATION_SPEED
+
+    def update(self):
+        self.animation_frame += self.animation_speed
+        self.animation_frame = round(self.animation_frame, 1)
+        if self.current_animation in Character.attack_animations_right or \
+                self.current_animation in Character.attack_animations_left:
+            if self.animation_frame >= len(self.current_animation):
+                self.current_animation = Character.idle_animation_right if self.facing == RIGHT \
+                    else Character.idle_animation_left
+                self.animation_frame = 0
+                self.animation_speed = Character.IDLE_ANIMATION_SPEED
+                self.attack = False
+        self.animation_frame %= len(self.current_animation)
+        self.image = self.current_animation[int(self.animation_frame)]
 
 
 class Tile(pygame.sprite.Sprite):
