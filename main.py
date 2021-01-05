@@ -11,7 +11,11 @@ MAX_FALL_SPEED = JUMP_HEIGHT  # максимальная скорость пад
 FPS = 30  # частота обновления экрана (кадров в секунду)
 RIGHT = 1
 LEFT = -1
+MUSIC_VOLUME = 0.1
+SFX_VOLUME = 0.2
 TEST_MODE = False
+
+pygame.init()
 
 
 def terminate():
@@ -27,6 +31,25 @@ def load_image(name: str) -> pygame.Surface:
         sys.exit()
     image = pygame.image.load(fullname)
     return image
+
+
+def play():
+    pygame.mixer.music.play(loops=-1, fade_ms=2000)
+
+
+class Music:
+    tracks = ['resources/music/Grasslands Theme.mp3']
+
+    def __init__(self, volume: float):
+        self.current_track = 0
+        pygame.mixer.music.load(Music.tracks[self.current_track])
+        pygame.mixer.music.set_volume(volume)
+        play()
+
+    def switch(self, n):
+        self.current_track = n
+        pygame.mixer.music.load(Music.tracks[self.current_track])
+        play()
 
 
 class Character(pygame.sprite.Sprite):
@@ -122,6 +145,8 @@ class Character(pygame.sprite.Sprite):
             pygame.transform.flip(load_image('character/adventurer-attack3-05.png'), True, False),
         ],
     ]
+    jump_sound = pygame.mixer.Sound('resources/sounds/jump.wav')
+    jump_sound.set_volume(SFX_VOLUME)
 
     def __init__(self, x, y):
         super().__init__(player_group, all_sprites)
@@ -211,6 +236,7 @@ class Character(pygame.sprite.Sprite):
             if collided_sprite:
                 self.jump = False
             else:
+                Character.jump_sound.play()
                 self.jump = True
                 self.current_animation = Character.jump_right if self.facing == RIGHT else Character.jump_left
                 self.animation_frame = 0
@@ -356,9 +382,8 @@ class Display:
 
 if __name__ == '__main__':
     # Инициализация #
-    pygame.init()
     pygame.display.set_caption('Untitled Nekit Game')
-    display_size = display_width, display_height = 640, 640
+    display_size = display_width, display_height = 1280, 640
     pygame.mouse.set_visible(False)
 
     # Спрайты #
@@ -381,6 +406,8 @@ if __name__ == '__main__':
     character.check_standing()
 
     display.camera.set_target(character)
+
+    music = Music(MUSIC_VOLUME)
 
     # Основной цикл #
     while True:
