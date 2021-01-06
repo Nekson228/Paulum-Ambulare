@@ -287,6 +287,167 @@ class Character(pygame.sprite.Sprite):
         self.image = self.current_animation[int(self.animation_frame)]
 
 
+class Enemy(pygame.sprite.Sprite):
+    # Константы персонажа #
+    IDLE_ANIMATION_SPEED = 0.1
+    ATTACK_ANIMATION_SPEED = 0.4
+    OTHER_ANIMATION_SPEED = 0.2
+
+    JUMP_HEIGHT = 8  # высота прыжка персонажа
+    MIN_FALL_SPEED = 1  # минимальная скорость падения
+    MAX_FALL_SPEED = JUMP_HEIGHT - 1  # максимальная скорость падения
+
+    # Анимации персонажа #
+    idle_animation_right = [
+        load_image('enemy/idle_1.png'),
+        load_image('enemy/idle_2.png')
+    ]
+    idle_animation_left = [
+        pygame.transform.flip(load_image('enemy/idle_1.png'), True, False),
+        pygame.transform.flip(load_image('enemy/idle_2.png'), True, False)
+    ]
+    run_animation_right = [
+        load_image('enemy/run_1.png'),
+        load_image('enemy/run_2.png'),
+        load_image('enemy/run_3.png'),
+        load_image('enemy/run_4.png'),
+        load_image('enemy/run_5.png'),
+        load_image('enemy/run_6.png'),
+        load_image('enemy/run_7.png'),
+        load_image('enemy/run_8.png')
+    ]
+    run_animation_left = [
+        pygame.transform.flip(load_image('enemy/run_1.png'), True, False),
+        pygame.transform.flip(load_image('enemy/run_2.png'), True, False),
+        pygame.transform.flip(load_image('enemy/run_3.png'), True, False),
+        pygame.transform.flip(load_image('enemy/run_4.png'), True, False),
+        pygame.transform.flip(load_image('enemy/run_5.png'), True, False),
+        pygame.transform.flip(load_image('enemy/run_6.png'), True, False),
+        pygame.transform.flip(load_image('enemy/run_7.png'), True, False),
+        pygame.transform.flip(load_image('enemy/run_8.png'), True, False)
+    ]
+    taking_hit_animations_right = [
+        load_image('enemy/hit_1.png'),
+        load_image('enemy/hit_2.png'),
+        load_image('enemy/hit_3.png'),
+        load_image('enemy/hit_4.png')
+    ]
+    taking_hit_animations_left = [
+        pygame.transform.flip(load_image('enemy/hit_1.png'), True, False),
+        pygame.transform.flip(load_image('enemy/hit_2.png'), True, False),
+        pygame.transform.flip(load_image('enemy/hit_3.png'), True, False),
+        pygame.transform.flip(load_image('enemy/hit_4.png'), True, False)
+    ]
+    death_animations_right = [
+        load_image('enemy/death_1.png'),
+        load_image('enemy/death_2.png'),
+        load_image('enemy/death_3.png'),
+        load_image('enemy/death_4.png')
+    ]
+    death_animations_left = [
+        pygame.transform.flip(load_image('enemy/death_1.png'), True, False),
+        pygame.transform.flip(load_image('enemy/death_2.png'), True, False),
+        pygame.transform.flip(load_image('enemy/death_3.png'), True, False),
+        pygame.transform.flip(load_image('enemy/death_4.png'), True, False)
+    ]
+    attack_animations_right = [
+        load_image('enemy/attack_1.png'),
+        load_image('enemy/attack_2.png'),
+        load_image('enemy/attack_3.png'),
+        load_image('enemy/attack_4.png'),
+        load_image('enemy/attack_5.png'),
+        load_image('enemy/attack_6.png'),
+        load_image('enemy/attack_7.png'),
+        load_image('enemy/attack_8.png')]
+    attack_animations_left = [
+        pygame.transform.flip(load_image('enemy/attack_1.png'), True, False),
+        pygame.transform.flip(load_image('enemy/attack_2.png'), True, False),
+        pygame.transform.flip(load_image('enemy/attack_3.png'), True, False),
+        pygame.transform.flip(load_image('enemy/attack_4.png'), True, False),
+        pygame.transform.flip(load_image('enemy/attack_5.png'), True, False),
+        pygame.transform.flip(load_image('enemy/attack_6.png'), True, False),
+        pygame.transform.flip(load_image('enemy/attack_7.png'), True, False),
+        pygame.transform.flip(load_image('enemy/attack_8.png'), True, False)
+        ]
+
+    def __init__(self, x, y):
+        super().__init__(mobs_group, all_sprites)
+
+        self.current_animation = Enemy.idle_animation_right
+        self.animation_frame = 0
+        self.attack_animation_type = 0
+        self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
+        self.image = self.current_animation[self.animation_frame]
+        self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
+
+        self.facing = RIGHT
+        self.jump_delta = Enemy.JUMP_HEIGHT
+        self.fall_delta = Enemy.MIN_FALL_SPEED
+
+        self.fall = False
+        self.attack = False
+
+    def move(self, x):
+        self.rect.x += x * self.facing
+        print(x * self.facing)
+
+        if x != 0:
+            if self.facing == RIGHT and self.current_animation != Enemy.run_animation_right:
+                self.set_animation(Enemy.run_animation_right)
+            elif self.facing == LEFT and self.current_animation != Enemy.run_animation_left:
+                self.set_animation(Enemy.run_animation_left)
+
+        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+        if collided_sprite:
+            self.facing *= -1
+
+    def check_standing(self):
+        self.rect.h += 1
+        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+        self.rect.h -= 1
+        if collided_sprite:
+            collided_top = range(collided_sprite.rect.topleft[0], collided_sprite.rect.topright[0])
+            if self.rect.left in collided_top or self.rect.right in collided_top:
+                if self.fall:
+                    self.set_animation(Enemy.idle_animation_right if self.facing == RIGHT
+                                       else Enemy.idle_animation_left)
+                self.fall = False
+        else:
+            self.fall = True
+
+    def set_animation(self, animation):
+        self.current_animation = animation
+        self.animation_frame = 0
+        if animation in Enemy.attack_animations_right or animation in Enemy.attack_animations_left:
+            self.animation_speed = Enemy.ATTACK_ANIMATION_SPEED
+        elif animation in (Enemy.idle_animation_right, Enemy.idle_animation_left):
+            self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
+        else:
+            self.animation_speed = Enemy.OTHER_ANIMATION_SPEED
+
+    def set_attack(self):
+        if not self.attack and not self.fall:
+            self.set_animation(Enemy.attack_animations_right[self.attack_animation_type] if self.facing == RIGHT
+                               else Enemy.attack_animations_left[self.attack_animation_type])
+            self.attack = True
+            self.attack_animation_type += 1
+            if self.attack_animation_type == len(Enemy.attack_animations_right):
+                self.attack_animation_type = 0
+
+    def update(self):
+        self.move(SPEED)
+        self.animation_frame += self.animation_speed
+        self.animation_frame = round(self.animation_frame, 1)
+        if self.current_animation in Enemy.attack_animations_right or \
+                self.current_animation in Enemy.attack_animations_left:
+            if self.animation_frame >= len(self.current_animation):
+                self.set_animation(Enemy.idle_animation_right if self.facing == RIGHT
+                                   else Enemy.idle_animation_left)
+                self.attack = False
+        self.animation_frame %= len(self.current_animation)
+        self.image = self.current_animation[int(self.animation_frame)]
+
+
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_img, x, y, block=False, half_block=False):
         super().__init__(all_sprites)
@@ -400,6 +561,7 @@ class Display:
         self.camera.apply(self.screen_rect)
         all_sprites.draw(self.screen)
         character.update()
+        mobs_group.update()
 
         pygame.display.flip()
 
@@ -414,6 +576,7 @@ if __name__ == '__main__':
     all_sprites = pygame.sprite.Group()
     player_group = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
+    mobs_group = pygame.sprite.Group()
 
     # Игровые переменные #
     display = Display(display_size)
@@ -426,6 +589,8 @@ if __name__ == '__main__':
     character = Character(10, 5)
     if not TEST_MODE:
         character.check_standing()
+
+    enemy = Enemy(21, 12)
 
     display.camera.set_target(character)
 
