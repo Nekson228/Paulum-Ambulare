@@ -5,9 +5,6 @@ import pytmx
 
 # Игровые константы #
 SPEED = 10  # скорость персонажа
-JUMP_HEIGHT = 8  # высота прыжка персонажа
-MIN_FALL_SPEED = 1  # минимальная скорость падения
-MAX_FALL_SPEED = JUMP_HEIGHT - 1  # максимальная скорость падения
 FPS = 30  # частота обновления экрана (кадров в секунду)
 RIGHT = 1
 LEFT = -1
@@ -57,6 +54,10 @@ class Character(pygame.sprite.Sprite):
     IDLE_ANIMATION_SPEED = 0.1
     ATTACK_ANIMATION_SPEED = 0.4
     OTHER_ANIMATION_SPEED = 0.2
+
+    JUMP_HEIGHT = 8  # высота прыжка персонажа
+    MIN_FALL_SPEED = 1  # минимальная скорость падения
+    MAX_FALL_SPEED = JUMP_HEIGHT - 1  # максимальная скорость падения
 
     # Анимации персонажа #
     idle_animation_right = [
@@ -161,6 +162,8 @@ class Character(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
 
         self.facing = RIGHT
+        self.jump_delta = Character.JUMP_HEIGHT
+        self.fall_delta = Character.MIN_FALL_SPEED
 
         self.jump = False
         self.fall = False
@@ -253,6 +256,25 @@ class Character(pygame.sprite.Sprite):
             self.animation_speed = Character.ATTACK_ANIMATION_SPEED
 
     def update(self):
+        if self.jump:
+            if self.jump_delta >= -Character.JUMP_HEIGHT:
+                if self.jump_delta > 0:
+                    self.move(0, -self.jump_delta ** 2)
+                    self.jump_delta -= 1
+                else:
+                    self.check_standing()
+                    self.set_jump(False)
+                    self.jump_delta = Character.JUMP_HEIGHT
+
+        if self.fall and not self.jump:
+            if self.fall_delta < Character.MAX_FALL_SPEED:
+                self.move(0, self.fall_delta ** 2)
+                self.fall_delta += 1
+            else:
+                self.move(0, Character.MAX_FALL_SPEED ** 2)
+        elif not self.fall:
+            self.fall_delta = Character.MIN_FALL_SPEED
+
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
         if self.current_animation in Character.attack_animations_right or \
@@ -396,9 +418,6 @@ if __name__ == '__main__':
     obstacles = pygame.sprite.Group()
 
     # Игровые переменные #
-    jump_delta = JUMP_HEIGHT
-    fall_delta = MIN_FALL_SPEED
-
     display = Display(display_size)
     game_map = TiledMap('level_ex.tmx')  # карта уровня
     tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов в пикселях
@@ -439,23 +458,4 @@ if __name__ == '__main__':
             if keys[pygame.K_SPACE] and not character.fall and not character.jump:
                 character.set_jump(True)
 
-        if character.jump:
-            if jump_delta >= -JUMP_HEIGHT:
-                if jump_delta > 0:
-                    character.move(0, -jump_delta ** 2)
-                    jump_delta -= 1
-                else:
-                    character.check_standing()
-                    character.set_jump(False)
-                    jump_delta = JUMP_HEIGHT
-                    character.check_standing()
-
-        if character.fall and not character.jump:
-            if fall_delta < MAX_FALL_SPEED:
-                character.move(0, fall_delta ** 2)
-                fall_delta += 1
-            else:
-                character.move(0, MAX_FALL_SPEED ** 2)
-        elif not character.fall:
-            fall_delta = MIN_FALL_SPEED
         display.update()
