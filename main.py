@@ -12,6 +12,9 @@ MUSIC_VOLUME = 0.1
 SFX_VOLUME = 0.2
 TEST_MODE = False
 
+player_x = 0
+player_y = 0  # нужно для объявления игрока
+
 pygame.init()
 
 
@@ -159,7 +162,7 @@ class Character(pygame.sprite.Sprite):
         self.attack_animation_type = 0
         self.animation_speed = Character.IDLE_ANIMATION_SPEED
         self.image = self.current_animation[self.animation_frame]
-        self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
+        self.rect = self.image.get_rect().move(x, y)
 
         self.facing = RIGHT
         self.jump_delta = Character.JUMP_HEIGHT
@@ -378,7 +381,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attack_animation_type = 0
         self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
         self.image = self.current_animation[self.animation_frame]
-        self.rect = self.image.get_rect().move(tile_width * x, tile_height * y)
+        self.rect = self.image.get_rect().move(x, y)
 
         self.facing = RIGHT
         self.jump_delta = Enemy.JUMP_HEIGHT
@@ -470,6 +473,8 @@ class TiledMap:
         return self.level_map.width, self.level_map.height
 
     def render(self):
+        global player_x, player_y
+
         for x, y, gid in self.level_map.layernames['Background']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -477,6 +482,12 @@ class TiledMap:
         for tile_object in self.level_map.layernames['Objects']:
             if tile_object.type == 'Block':
                 Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
+        for mob in self.level_map.layernames['Characters']:
+            if mob.type == 'Player':
+                player_x = mob.x
+                player_y = mob.y
+            elif mob.type == 'Goblin':
+                Enemy(mob.x, mob.y)
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -586,11 +597,10 @@ if __name__ == '__main__':
     display.set_level_size((level_width * tile_width, level_height * tile_height))
     game_map.render()
 
-    character = Character(10, 5)
+    character = Character(player_x, player_y)  # либо игрок появится на заданных картой координатах,
+    # либо сгинет в пустоту мухахахахахахахаха
     if not TEST_MODE:
         character.check_standing()
-
-    enemy = Enemy(21, 12)
 
     display.camera.set_target(character)
 
