@@ -176,19 +176,16 @@ class Character(pygame.sprite.Sprite):
         if x != 0:
             self.facing = RIGHT if x > 0 else LEFT
             if not (self.jump or self.fall):
-                self.animation_speed = Character.OTHER_ANIMATION_SPEED
-                if x > 0 and self.current_animation != Character.run_animation_right:
-                    self.current_animation = Character.run_animation_right
-                    self.animation_frame = 0
-                elif x < 0 and self.current_animation != Character.run_animation_left:
-                    self.current_animation = Character.run_animation_left
-                    self.animation_frame = 0
+                if self.facing == RIGHT and self.current_animation != Character.run_animation_right:
+                    self.set_animation(Character.run_animation_right)
+                elif self.facing == LEFT and self.current_animation != Character.run_animation_left:
+                    self.set_animation(Character.run_animation_left)
             else:
                 if self.jump:
-                    self.current_animation = Character.jump_right if self.facing == RIGHT else Character.jump_left
+                    self.set_animation(Character.jump_right if self.facing == RIGHT else Character.jump_left)
                 elif self.fall:
-                    self.current_animation = Character.fall_animation_right \
-                        if self.facing == RIGHT else Character.fall_animation_left
+                    self.set_animation(Character.fall_animation_right if self.facing == RIGHT
+                                       else Character.fall_animation_left)
 
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
         if collided_sprite:
@@ -212,14 +209,23 @@ class Character(pygame.sprite.Sprite):
             collided_top = range(collided_sprite.rect.topleft[0], collided_sprite.rect.topright[0])
             if self.rect.left in collided_top or self.rect.right in collided_top:
                 if self.fall:
-                    self.current_animation = Character.idle_animation_right \
-                        if self.facing == RIGHT else Character.idle_animation_left
-                    self.animation_speed = Character.IDLE_ANIMATION_SPEED
+                    self.set_animation(Character.idle_animation_right if self.facing == RIGHT
+                                       else Character.idle_animation_left)
                 self.fall = False
         else:
             self.fall = True
-            self.current_animation = Character.fall_animation_right \
-                if self.facing == RIGHT else Character.fall_animation_left
+            self.set_animation(Character.fall_animation_right if self.facing == RIGHT
+                               else Character.fall_animation_left)
+
+    def set_animation(self, animation):
+        self.current_animation = animation
+        self.animation_frame = 0
+        if animation in Character.attack_animations_right or animation in Character.attack_animations_left:
+            self.animation_speed = Character.ATTACK_ANIMATION_SPEED
+        elif animation in (Character.idle_animation_right, Character.idle_animation_left):
+            self.animation_speed = Character.IDLE_ANIMATION_SPEED
+        else:
+            self.animation_speed = Character.OTHER_ANIMATION_SPEED
 
     def set_jump(self, state):
         if state is True:
@@ -231,29 +237,23 @@ class Character(pygame.sprite.Sprite):
             else:
                 Character.jump_sound.play()
                 self.jump = True
-                self.current_animation = Character.jump_right if self.facing == RIGHT else Character.jump_left
-                self.animation_frame = 0
+                self.set_animation(Character.jump_right if self.facing == RIGHT else Character.jump_left)
         else:
             self.jump = False
 
     def set_standing(self):
         if self.current_animation in (Character.run_animation_right, Character.run_animation_left):
-            self.current_animation = Character.idle_animation_right if self.facing == RIGHT \
-                else Character.idle_animation_left
-            self.animation_frame = 0
-            self.animation_speed = Character.IDLE_ANIMATION_SPEED
+            self.set_animation(Character.idle_animation_right if self.facing == RIGHT
+                               else Character.idle_animation_left)
 
     def set_attack(self):
         if not self.attack and not self.jump and not self.fall:
+            self.set_animation(Character.attack_animations_right[self.attack_animation_type] if self.facing == RIGHT
+                               else Character.attack_animations_left[self.attack_animation_type])
             self.attack = True
-            self.current_animation = Character.attack_animations_right[self.attack_animation_type] \
-                if self.facing == RIGHT \
-                else Character.attack_animations_left[self.attack_animation_type]
-            self.animation_frame = 0
             self.attack_animation_type += 1
             if self.attack_animation_type == len(Character.attack_animations_right):
                 self.attack_animation_type = 0
-            self.animation_speed = Character.ATTACK_ANIMATION_SPEED
 
     def update(self):
         if self.jump:
@@ -280,10 +280,8 @@ class Character(pygame.sprite.Sprite):
         if self.current_animation in Character.attack_animations_right or \
                 self.current_animation in Character.attack_animations_left:
             if self.animation_frame >= len(self.current_animation):
-                self.current_animation = Character.idle_animation_right if self.facing == RIGHT \
-                    else Character.idle_animation_left
-                self.animation_frame = 0
-                self.animation_speed = Character.IDLE_ANIMATION_SPEED
+                self.set_animation(Character.idle_animation_right if self.facing == RIGHT
+                                   else Character.idle_animation_left)
                 self.attack = False
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
@@ -426,7 +424,8 @@ if __name__ == '__main__':
     game_map.render()
 
     character = Character(10, 5)
-    character.check_standing()
+    if not TEST_MODE:
+        character.check_standing()
 
     display.camera.set_target(character)
 
@@ -455,7 +454,8 @@ if __name__ == '__main__':
                     character.move(0, SPEED)
             if not (keys[pygame.K_LEFT] or keys[pygame.K_a]) and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
                 character.set_standing()
-            if keys[pygame.K_SPACE] and not character.fall and not character.jump:
-                character.set_jump(True)
+            if TEST_MODE is False:
+                if keys[pygame.K_SPACE] and not character.fall and not character.jump:
+                    character.set_jump(True)
 
         display.update()
