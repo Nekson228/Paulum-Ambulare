@@ -438,7 +438,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.attack_animation_type = 0
 
     def update(self):
-        self.move(SPEED)
+        self.move(SPEED // 5)
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
         if self.current_animation in Enemy.attack_animations_right or \
