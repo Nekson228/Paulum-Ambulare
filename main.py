@@ -151,6 +151,24 @@ class Character(pygame.sprite.Sprite):
             pygame.transform.flip(load_image('character/adventurer-attack3-05.png'), True, False),
         ],
     ]
+    die_animation_right = [
+        load_image('character/adventurer-die-00.png'),
+        load_image('character/adventurer-die-01.png'),
+        load_image('character/adventurer-die-02.png'),
+        load_image('character/adventurer-die-03.png'),
+        load_image('character/adventurer-die-04.png'),
+        load_image('character/adventurer-die-05.png'),
+        load_image('character/adventurer-die-06.png'),
+    ]
+    die_animation_left = [
+        pygame.transform.flip(load_image('character/adventurer-die-00.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-die-01.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-die-02.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-die-03.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-die-04.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-die-05.png'), True, False),
+        pygame.transform.flip(load_image('character/adventurer-die-06.png'), True, False),
+    ]
     jump_sound = pygame.mixer.Sound('resources/sounds/jump.wav')
     jump_sound.set_volume(SFX_VOLUME)
 
@@ -258,6 +276,9 @@ class Character(pygame.sprite.Sprite):
             if self.attack_animation_type == len(Character.attack_animations_right):
                 self.attack_animation_type = 0
 
+    def set_death(self):
+        self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
+
     def update(self):
         if self.jump:
             if self.jump_delta >= -Character.JUMP_HEIGHT:
@@ -286,6 +307,10 @@ class Character(pygame.sprite.Sprite):
                 self.set_animation(Character.idle_animation_right if self.facing == RIGHT
                                    else Character.idle_animation_left)
                 self.attack = False
+        elif self.current_animation in (Character.die_animation_right, Character.die_animation_left):
+            if self.animation_frame >= len(self.current_animation):
+                clear()
+                game_map.render()
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
@@ -371,7 +396,7 @@ class Enemy(pygame.sprite.Sprite):
         pygame.transform.flip(load_image('enemy/attack_6.png'), True, False),
         pygame.transform.flip(load_image('enemy/attack_7.png'), True, False),
         pygame.transform.flip(load_image('enemy/attack_8.png'), True, False)
-        ]
+    ]
 
     def __init__(self, x, y):
         super().__init__(mobs_group, all_sprites)
@@ -392,7 +417,6 @@ class Enemy(pygame.sprite.Sprite):
 
     def move(self, x):
         self.rect.x += x * self.facing
-        print(x * self.facing)
 
         if x != 0:
             if self.facing == RIGHT and self.current_animation != Enemy.run_animation_right:
@@ -403,6 +427,7 @@ class Enemy(pygame.sprite.Sprite):
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
         if collided_sprite:
             self.facing *= -1
+        self.check_standing()
 
     def check_standing(self):
         self.rect.h += 1
@@ -410,13 +435,10 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.h -= 1
         if collided_sprite:
             collided_top = range(collided_sprite.rect.topleft[0], collided_sprite.rect.topright[0])
-            if self.rect.left in collided_top or self.rect.right in collided_top:
-                if self.fall:
-                    self.set_animation(Enemy.idle_animation_right if self.facing == RIGHT
-                                       else Enemy.idle_animation_left)
-                self.fall = False
+            if not (self.rect.left in collided_top or self.rect.right in collided_top):
+                self.facing *= -1
         else:
-            self.fall = True
+            self.facing *= -1
 
     def set_animation(self, animation):
         self.current_animation = animation
@@ -461,6 +483,10 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
 
 
+def clear():
+    all_sprites.empty()
+
+
 class TiledMap:
     def __init__(self, tmx_map):
         tmx_map = "main_maps/" + tmx_map
@@ -473,8 +499,7 @@ class TiledMap:
         return self.level_map.width, self.level_map.height
 
     def render(self):
-        global player_x, player_y
-
+        char = None
         for x, y, gid in self.level_map.layernames['Background']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -482,16 +507,16 @@ class TiledMap:
         for tile_object in self.level_map.layernames['Objects']:
             if tile_object.type == 'Block':
                 Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
-        for mob in self.level_map.layernames['Characters']:
-            if mob.type == 'Player':
-                player_x = mob.x
-                player_y = mob.y
-            elif mob.type == 'Goblin':
-                Enemy(mob.x, mob.y)
+        for entity in self.level_map.layernames['Characters']:
+            if entity.type == 'Player':
+                char = Character(entity.x, entity.y)
+            elif entity.type == 'Goblin':
+                Enemy(entity.x, entity.y)
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
                 Tile(tile, x * tile_width, y * tile_height)
+        return char
 
 
 class Camera:
@@ -595,10 +620,7 @@ if __name__ == '__main__':
     tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов в пикселях
     level_tiles = level_width, level_height = game_map.get_level_size()  # размер уровня в тайлах
     display.set_level_size((level_width * tile_width, level_height * tile_height))
-    game_map.render()
-
-    character = Character(player_x, player_y)  # либо игрок появится на заданных картой координатах,
-    # либо сгинет в пустоту мухахахахахахахаха
+    character = game_map.render()
     if not TEST_MODE:
         character.check_standing()
 
@@ -614,6 +636,8 @@ if __name__ == '__main__':
                 terminate()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
                 character.set_attack()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                character.set_death()
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
