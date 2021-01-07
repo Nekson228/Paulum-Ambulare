@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="64" tileheight="64" infinite="0" nextlayerid="10" nextobjectid="237">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="64" tileheight="64" infinite="0" nextlayerid="11" nextobjectid="275">
  <tileset firstgid="1" source="../resources/Terrain_1.tsx"/>
  <tileset firstgid="151" source="../resources/Background.tsx"/>
  <tileset firstgid="179" source="../resources/Water.tsx"/>
@@ -157,7 +157,46 @@
  </objectgroup>
  <objectgroup id="9" name="Characters">
   <object id="230" type="Player" gid="292" x="1159.5" y="384.75" width="38" height="58"/>
-  <object id="231" type="Goblin" gid="219" x="640" y="832" width="66" height="72"/>
+  <object id="231" type="Goblin" gid="219" x="652.667" y="832" width="66" height="72"/>
+  <object id="237" type="Goblin" gid="219" x="532.667" y="768" width="66" height="72"/>
+  <object id="238" type="Goblin" gid="219" x="356" y="768" width="66" height="72"/>
+  <object id="239" type="Goblin" gid="219" x="158.667" y="768" width="66" height="72"/>
+  <object id="240" type="Goblin" gid="219" x="27.3333" y="832" width="66" height="72"/>
+  <object id="241" type="Goblin" gid="219" x="221.333" y="512" width="66" height="72"/>
+  <object id="242" type="Goblin" gid="219" x="416.667" y="384" width="66" height="72"/>
+  <object id="243" type="Goblin" gid="219" x="578" y="448" width="66" height="72"/>
+  <object id="244" type="Goblin" gid="219" x="1031.33" y="383.333" width="66" height="72"/>
+  <object id="245" type="Goblin" gid="219" x="992.667" y="640" width="66" height="72"/>
+  <object id="246" type="Goblin" gid="219" x="1114" y="768" width="66" height="72"/>
+  <object id="247" type="Goblin" gid="219" x="1310.67" y="832" width="66" height="72"/>
+  <object id="248" type="Goblin" gid="219" x="1506" y="447.333" width="66" height="72"/>
+  <object id="249" type="Goblin" gid="219" x="1652" y="384" width="66" height="72"/>
+  <object id="250" type="Goblin" gid="219" x="1714.67" y="895.333" width="66" height="72"/>
+  <object id="251" type="Goblin" gid="219" x="1569.33" y="767.333" width="66" height="72"/>
+ </objectgroup>
+ <objectgroup id="10" name="Collisions">
+  <object id="252" type="Collide" gid="178" x="644" y="727.333" width="16" height="16"/>
+  <object id="253" type="Collide" gid="178" x="492" y="727.33" width="16" height="16"/>
+  <object id="254" type="Collide" gid="178" x="452" y="727.33" width="16" height="16"/>
+  <object id="255" type="Collide" gid="178" x="300" y="727.33" width="16" height="16"/>
+  <object id="256" type="Collide" gid="178" x="260" y="727.33" width="16" height="16"/>
+  <object id="257" type="Collide" gid="178" x="110" y="727.33" width="16" height="16"/>
+  <object id="258" type="Collide" gid="178" x="772" y="791.33" width="16" height="16"/>
+  <object id="259" type="Collide" gid="178" x="170" y="471.33" width="16" height="16"/>
+  <object id="260" type="Collide" gid="178" x="352" y="345.83" width="16" height="16"/>
+  <object id="261" type="Collide" gid="178" x="527" y="344.83" width="16" height="16"/>
+  <object id="262" type="Collide" gid="178" x="719" y="408.83" width="16" height="16"/>
+  <object id="263" type="Collide" gid="178" x="991.333" y="346.33" width="16" height="16"/>
+  <object id="264" type="Collide" gid="178" x="1295.33" y="347.663" width="16" height="16"/>
+  <object id="265" type="Collide" gid="178" x="940" y="600.33" width="16" height="16"/>
+  <object id="266" type="Collide" gid="178" x="1220" y="727.33" width="16" height="16"/>
+  <object id="267" type="Collide" gid="178" x="1092" y="599.33" width="16" height="16"/>
+  <object id="268" type="Collide" gid="178" x="1516" y="727.33" width="16" height="16"/>
+  <object id="269" type="Collide" gid="178" x="1670" y="727.33" width="16" height="16"/>
+  <object id="270" type="Collide" gid="178" x="1796" y="353.33" width="16" height="16"/>
+  <object id="271" type="Collide" gid="178" x="1580" y="353.33" width="16" height="16"/>
+  <object id="272" type="Collide" gid="178" x="1452" y="407.33" width="16" height="16"/>
+  <object id="274" type="Collide" gid="178" x="-24.6667" y="793.997" width="16" height="16"/>
  </objectgroup>
  <layer id="2" name="Water" width="30" height="17">
   <data encoding="base64" compression="zlib">

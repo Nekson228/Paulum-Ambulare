@@ -424,20 +424,9 @@ class Enemy(pygame.sprite.Sprite):
             elif self.facing == LEFT and self.current_animation != Enemy.run_animation_left:
                 self.set_animation(Enemy.run_animation_left)
 
+        collided_block = pygame.sprite.spritecollideany(self, non_visible_things)
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
-        if collided_sprite:
-            self.facing *= -1
-        self.check_standing()
-
-    def check_standing(self):
-        self.rect.h += 1
-        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
-        self.rect.h -= 1
-        if collided_sprite:
-            collided_top = range(collided_sprite.rect.topleft[0], collided_sprite.rect.topright[0])
-            if not (self.rect.left in collided_top or self.rect.right in collided_top):
-                self.facing *= -1
-        else:
+        if collided_sprite or collided_block:
             self.facing *= -1
 
     def set_animation(self, animation):
@@ -483,6 +472,14 @@ class Tile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
 
 
+class Deco(pygame.sprite.Sprite):
+    def __init__(self, img, x, y, w, h):
+        super().__init__(non_visible_things)
+        self.image = img
+        self.image = pygame.transform.scale(self.image, (w, h))
+        self.rect = self.image.get_rect().move(x, y)
+
+
 def clear():
     all_sprites.empty()
 
@@ -512,6 +509,9 @@ class TiledMap:
                 char = Character(entity.x, entity.y)
             elif entity.type == 'Goblin':
                 Enemy(entity.x, entity.y)
+        for block in self.level_map.layernames['Collisions']:
+            if block.type == 'Collide':
+                Deco(block.image, block.x, block.y, int(block.width), int(block.height))
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -594,6 +594,8 @@ class Display:
         self.camera.update()
         for sprite in all_sprites:
             self.camera.apply(sprite)
+        for block in non_visible_things:
+            self.camera.apply(block)
         self.camera.apply(self.screen_rect)
         all_sprites.draw(self.screen)
         character.update()
@@ -612,6 +614,7 @@ if __name__ == '__main__':
     all_sprites = pygame.sprite.Group()
     player_group = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
+    non_visible_things = pygame.sprite.Group()
     mobs_group = pygame.sprite.Group()
 
     # Игровые переменные #
