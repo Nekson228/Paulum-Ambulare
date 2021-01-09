@@ -616,29 +616,29 @@ def main_menu(from_pause=False):
 
         display.screen.fill('black')
         display.screen.blit(background, (0, 0))
-        title = text_format("PAULUM AMBULARE", font, 40, 'yellow')
+        title = text_format("PAULUM AMBULARE", font, 40, 'black')
         if selected == "start":
             if not from_pause:
-                text_start = text_format(">START<", font, 20, 'white')
+                text_start = text_format(">START<", font, 20, 'black')
             else:
-                text_start = text_format(">CONTINUE<", font, 20, 'white')
+                text_start = text_format(">CONTINUE<", font, 20, 'black')
         else:
             if not from_pause:
-                text_start = text_format("START", font, 20, 'white')
+                text_start = text_format("START", font, 20, 'black')
             else:
-                text_start = text_format("CONTINUE", font, 20, 'white')
+                text_start = text_format("CONTINUE", font, 20, 'black')
         if selected == "quit":
-            text_quit = text_format(">QUIT<", font, 20, 'white')
+            text_quit = text_format(">QUIT<", font, 20, 'black')
         else:
-            text_quit = text_format("QUIT", font, 20, 'white')
+            text_quit = text_format("QUIT", font, 20, 'black')
 
         title_rect = title.get_rect()
         start_rect = text_start.get_rect()
         quit_rect = text_quit.get_rect()
 
-        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 80))
-        display.screen.blit(text_start, (display_width / 2 - (start_rect.width / 2), 300))
-        display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 360))
+        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 40))
+        display.screen.blit(text_start, (display_width / 2 - (start_rect.width / 2), 250))
+        display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2) + 30, 350))
         pygame.display.flip()
         display.clock.tick(FPS)
     music.switch(1)
@@ -716,7 +716,7 @@ class Display:
 
 if __name__ == '__main__':
     # Инициализация #
-    pygame.display.set_caption('Untitled Nekit Game')
+    pygame.display.set_caption('PAULUM AMBULARE.EXE')
     display_size = display_width, display_height = 1280, 640
     pygame.mouse.set_visible(False)
 
