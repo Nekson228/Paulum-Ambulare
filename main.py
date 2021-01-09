@@ -1,5 +1,4 @@
 import pygame
-import pygame_menu
 import sys
 import os
 import pytmx
@@ -36,6 +35,14 @@ def load_image(name: str) -> pygame.Surface:
 
 def play():
     pygame.mixer.music.play(loops=-1, fade_ms=2000)
+
+
+def pause():
+    pygame.mixer.music.pause()
+
+
+def unpause():
+    pygame.mixer.music.unpause()
 
 
 def text_format(message, font, size, color):
@@ -588,14 +595,14 @@ class Camera:
 
 def main_menu():
     menu = True
+    music.switch(0)
     background = pygame.transform.scale(load_image('menu_screens/main_menu.png'), (display_width, display_height))
     selected = "start"
 
     while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+                terminate()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     selected = "start"
@@ -623,12 +630,55 @@ def main_menu():
         start_rect = text_start.get_rect()
         quit_rect = text_quit.get_rect()
 
-        display.screen.blit(title, (display_width / 2 - (title_rect[2] / 2), 80))
-        display.screen.blit(text_start, (display_width / 2 - (start_rect[2] / 2), 300))
-        display.screen.blit(text_quit, (display_width / 2 - (quit_rect[2] / 2), 360))
+        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 80))
+        display.screen.blit(text_start, (display_width / 2 - (start_rect.width / 2), 300))
+        display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 360))
         pygame.display.flip()
         display.clock.tick(FPS)
     music.switch(1)
+
+
+def pause_menu():
+    pause()
+    menu = True
+    selected = "resume"
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = "resume"
+                elif event.key == pygame.K_DOWN:
+                    selected = "quit"
+                if event.key == pygame.K_RETURN:
+                    if selected == "resume":
+                        menu = False
+                    if selected == "quit":
+                        menu = False
+
+        display.screen.fill('black')
+        if selected == "resume":
+            text_resume = text_format(">RESUME<", font, 20, 'white')
+        else:
+            text_resume = text_format("RESUME", font, 20, 'white')
+        if selected == "quit":
+            text_quit = text_format(">QUIT<", font, 20, 'white')
+        else:
+            text_quit = text_format("QUIT", font, 20, 'white')
+
+        resume_rect = text_resume.get_rect()
+        quit_rect = text_quit.get_rect()
+
+        display.screen.blit(text_resume, (display_width / 2 - (resume_rect.width / 2), 300))
+        display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 360))
+        pygame.display.flip()
+        display.clock.tick(FPS)
+    if selected == 'resume':
+        unpause()
+    elif selected == 'quit':
+        main_menu()
 
 
 class Display:
@@ -696,6 +746,8 @@ if __name__ == '__main__':
                 character.set_attack()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 character.set_death()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                pause_menu()
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
