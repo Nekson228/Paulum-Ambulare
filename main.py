@@ -1,4 +1,5 @@
 import pygame
+import pygame_menu
 import sys
 import os
 import pytmx
@@ -37,8 +38,16 @@ def play():
     pygame.mixer.music.play(loops=-1, fade_ms=2000)
 
 
+def text_format(message, font, size, color):
+    new_font = pygame.font.Font(f'resources/{font}', size)
+    new_text = new_font.render(message, 0, color)
+
+    return new_text
+
+
 class Music:
-    tracks = ['resources/music/Grasslands Theme.mp3']
+    tracks = ['resources/music/Intro Theme.mp3',
+              'resources/music/Grasslands Theme.mp3']
 
     def __init__(self, volume: float):
         self.current_track = 0
@@ -577,6 +586,51 @@ class Camera:
                 self.bottom_blocked = False
 
 
+def main_menu():
+    menu = True
+    background = pygame.transform.scale(load_image('menu_screens/main_menu.png'), (display_width, display_height))
+    selected = "start"
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = "start"
+                elif event.key == pygame.K_DOWN:
+                    selected = "quit"
+                if event.key == pygame.K_RETURN:
+                    if selected == "start":
+                        menu = False
+                    if selected == "quit":
+                        terminate()
+
+        display.screen.fill('black')
+        display.screen.blit(background, (0, 0))
+        title = text_format("PAULUM AMBULARE", font, 40, 'yellow')
+        if selected == "start":
+            text_start = text_format(">START<", font, 20, 'white')
+        else:
+            text_start = text_format("START", font, 20, 'white')
+        if selected == "quit":
+            text_quit = text_format(">QUIT<", font, 20, 'white')
+        else:
+            text_quit = text_format("QUIT", font, 20, 'white')
+
+        title_rect = title.get_rect()
+        start_rect = text_start.get_rect()
+        quit_rect = text_quit.get_rect()
+
+        display.screen.blit(title, (display_width / 2 - (title_rect[2] / 2), 80))
+        display.screen.blit(text_start, (display_width / 2 - (start_rect[2] / 2), 300))
+        display.screen.blit(text_quit, (display_width / 2 - (quit_rect[2] / 2), 360))
+        pygame.display.flip()
+        display.clock.tick(FPS)
+    music.switch(1)
+
+
 class Display:
     def __init__(self, screen_size):
         self.screen = pygame.display.set_mode(screen_size)
@@ -618,7 +672,10 @@ if __name__ == '__main__':
     mobs_group = pygame.sprite.Group()
 
     # Игровые переменные #
+    music = Music(MUSIC_VOLUME)
+    font = "8 Bit Font.ttf"
     display = Display(display_size)
+    main_menu()
     game_map = TiledMap('level_ex.tmx')  # карта уровня
     tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов в пикселях
     level_tiles = level_width, level_height = game_map.get_level_size()  # размер уровня в тайлах
@@ -628,8 +685,6 @@ if __name__ == '__main__':
         character.check_standing()
 
     display.camera.set_target(character)
-
-    music = Music(MUSIC_VOLUME)
 
     # Основной цикл #
     while True:
