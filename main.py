@@ -593,7 +593,7 @@ class Camera:
                 self.bottom_blocked = False
 
 
-def main_menu():
+def main_menu(from_pause=False):
     menu = True
     music.switch(0)
     background = pygame.transform.scale(load_image('menu_screens/main_menu.png'), (display_width, display_height))
@@ -618,9 +618,15 @@ def main_menu():
         display.screen.blit(background, (0, 0))
         title = text_format("PAULUM AMBULARE", font, 40, 'yellow')
         if selected == "start":
-            text_start = text_format(">START<", font, 20, 'white')
+            if not from_pause:
+                text_start = text_format(">START<", font, 20, 'white')
+            else:
+                text_start = text_format(">CONTINUE<", font, 20, 'white')
         else:
-            text_start = text_format("START", font, 20, 'white')
+            if not from_pause:
+                text_start = text_format("START", font, 20, 'white')
+            else:
+                text_start = text_format("CONTINUE", font, 20, 'white')
         if selected == "quit":
             text_quit = text_format(">QUIT<", font, 20, 'white')
         else:
@@ -678,7 +684,7 @@ def pause_menu():
     if selected == 'resume':
         unpause()
     elif selected == 'quit':
-        main_menu()
+        main_menu(from_pause=True)
 
 
 class Display:
