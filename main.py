@@ -54,13 +54,13 @@ def text_format(message, font_filename, size, color):
 
 class Music:
     tracks = ['resources/music/Intro Theme.mp3',
-              'resources/music/Grasslands Theme.mp3']
+              'resources/music/Grasslands Theme.mp3',
+              'resources/music/Game Over.mp3']
 
     def __init__(self, volume: float):
         self.current_track = 0
         pygame.mixer.music.load(Music.tracks[self.current_track])
         pygame.mixer.music.set_volume(volume)
-        play()
 
     def switch(self, n):
         self.current_track = n
@@ -246,7 +246,8 @@ class Character(pygame.sprite.Sprite):
     def check_enemy_collision(self):
         collided_enemy = pygame.sprite.spritecollideany(self, mobs_group)
         if collided_enemy:
-            self.set_death()
+            if not self.death:
+                self.set_death()
 
     def check_standing(self):
         self.rect.h += 1
@@ -265,14 +266,15 @@ class Character(pygame.sprite.Sprite):
                                else Character.fall_animation_left)
 
     def set_animation(self, animation):
-        self.current_animation = animation
-        self.animation_frame = 0
-        if animation in Character.attack_animations_right or animation in Character.attack_animations_left:
-            self.animation_speed = Character.ATTACK_ANIMATION_SPEED
-        elif animation in (Character.idle_animation_right, Character.idle_animation_left):
-            self.animation_speed = Character.IDLE_ANIMATION_SPEED
-        else:
-            self.animation_speed = Character.OTHER_ANIMATION_SPEED
+        if not self.death:
+            self.current_animation = animation
+            self.animation_frame = 0
+            if animation in Character.attack_animations_right or animation in Character.attack_animations_left:
+                self.animation_speed = Character.ATTACK_ANIMATION_SPEED
+            elif animation in (Character.idle_animation_right, Character.idle_animation_left):
+                self.animation_speed = Character.IDLE_ANIMATION_SPEED
+            else:
+                self.animation_speed = Character.OTHER_ANIMATION_SPEED
 
     def set_jump(self, state):
         if state is True:
@@ -306,6 +308,7 @@ class Character(pygame.sprite.Sprite):
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
         self.death = True
         Character.death_sound.play()
+        pygame.mixer.music.fadeout(3000)
 
     def update(self):
         if self.jump:
@@ -339,6 +342,7 @@ class Character(pygame.sprite.Sprite):
                 self.attack = False
         elif self.current_animation in (Character.die_animation_right, Character.die_animation_left):
             if self.animation_frame >= len(self.current_animation):
+                game_over()
                 reset_level()
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
@@ -708,6 +712,54 @@ def pause_menu():
         main_menu(from_pause=True)
 
 
+def game_over():
+    music.switch(2)
+    menu = True
+    background = pygame.transform.scale(load_image('menu_screens/game_over.png'), (display_width, display_height))
+    selected = "restart"
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    selected = "restart"
+                elif event.key == pygame.K_RIGHT:
+                    selected = "quit"
+                if event.key == pygame.K_RETURN:
+                    if selected == "restart":
+                        menu = False
+                    if selected == "quit":
+                        menu = False
+
+        display.screen.fill('black')
+        display.screen.blit(background, (0, 0))
+        title = text_format("GAME OVER", font, 40, 'red')
+        if selected == "restart":
+            text_restart = text_format(">RESTART<", font, 20, 'red')
+        else:
+            text_restart = text_format("RESTART", font, 20, 'red')
+        if selected == "quit":
+            text_quit = text_format(">QUIT<", font, 20, 'red')
+        else:
+            text_quit = text_format("QUIT", font, 20, 'red')
+
+        title_rect = title.get_rect()
+        restart_rect = text_restart.get_rect()
+        quit_rect = text_quit.get_rect()
+
+        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 400))
+        display.screen.blit(text_restart, (100, display_height / 2))
+        display.screen.blit(text_quit, (display_width - 200, display_height / 2))
+        pygame.display.flip()
+        display.clock.tick(FPS)
+    if selected == 'restart':
+        music.switch(1)
+    elif selected == 'quit':
+        main_menu()
+
+
 class Display:
     def __init__(self, screen_size):
         self.screen = pygame.display.set_mode(screen_size)
@@ -723,7 +775,10 @@ class Display:
         self.screen_rect.width, self.screen_rect.height = level_size
 
     def update(self):
-        self.clock.tick(FPS)
+        if character.death:
+            self.clock.tick(FPS // 4)
+        else:
+            self.clock.tick(FPS)
         self.screen.fill('black')
 
         self.camera.update(character)
@@ -773,7 +828,7 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not character.death:
                 pause_menu()
 
         # Передвижение персонажа #
