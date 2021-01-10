@@ -186,7 +186,10 @@ class Character(pygame.sprite.Sprite):
         pygame.transform.flip(load_image('character/adventurer-die-06.png'), True, False),
     ]
     jump_sound = pygame.mixer.Sound('resources/sounds/jump.wav')
+    death_sound = pygame.mixer.Sound('resources/sounds/hurt.wav')
+
     jump_sound.set_volume(SFX_VOLUME)
+    death_sound.set_volume(SFX_VOLUME)
 
     def __init__(self, x, y):
         super().__init__(player_group, all_sprites)
@@ -302,6 +305,7 @@ class Character(pygame.sprite.Sprite):
     def set_death(self):
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
         self.death = True
+        Character.death_sound.play()
 
     def update(self):
         if self.jump:
