@@ -45,9 +45,9 @@ def unpause():
     pygame.mixer.music.unpause()
 
 
-def text_format(message, font, size, color):
-    new_font = pygame.font.Font(f'resources/{font}', size)
-    new_text = new_font.render(message, 0, color)
+def text_format(message, font_filename, size, color):
+    new_font = pygame.font.Font(f'resources/{font_filename}', size)
+    new_text = new_font.render(message, True, color)
 
     return new_text
 
@@ -205,6 +205,7 @@ class Character(pygame.sprite.Sprite):
         self.jump = False
         self.fall = False
         self.attack = False
+        self.death = False
 
     def move(self, x, y):
         self.rect.x += x
@@ -224,7 +225,7 @@ class Character(pygame.sprite.Sprite):
                     self.set_animation(Character.fall_animation_right if self.facing == RIGHT
                                        else Character.fall_animation_left)
 
-        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+        collided_sprite = pygame.sprite.spritecollideany(self, obstacles_group)
         if collided_sprite:
             if x > 0:
                 self.rect.x = collided_sprite.rect.x - self.rect.w
@@ -237,10 +238,16 @@ class Character(pygame.sprite.Sprite):
         if TEST_MODE is False:
             if not self.jump:
                 self.check_standing()
+        self.check_enemy_collision()
+
+    def check_enemy_collision(self):
+        collided_enemy = pygame.sprite.spritecollideany(self, mobs_group)
+        if collided_enemy:
+            self.set_death()
 
     def check_standing(self):
         self.rect.h += 1
-        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+        collided_sprite = pygame.sprite.spritecollideany(self, obstacles_group)
         self.rect.h -= 1
         if collided_sprite:
             collided_top = range(collided_sprite.rect.topleft[0], collided_sprite.rect.topright[0])
@@ -267,7 +274,7 @@ class Character(pygame.sprite.Sprite):
     def set_jump(self, state):
         if state is True:
             self.rect.y -= 1
-            collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+            collided_sprite = pygame.sprite.spritecollideany(self, obstacles_group)
             self.rect.y += 1
             if collided_sprite:
                 self.jump = False
@@ -294,6 +301,7 @@ class Character(pygame.sprite.Sprite):
 
     def set_death(self):
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
+        self.death = True
 
     def update(self):
         if self.jump:
@@ -314,6 +322,8 @@ class Character(pygame.sprite.Sprite):
                 self.move(0, Character.MAX_FALL_SPEED ** 2)
         elif not self.fall:
             self.fall_delta = Character.MIN_FALL_SPEED
+        if not self.death:
+            self.check_enemy_collision()
 
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
@@ -325,8 +335,7 @@ class Character(pygame.sprite.Sprite):
                 self.attack = False
         elif self.current_animation in (Character.die_animation_right, Character.die_animation_left):
             if self.animation_frame >= len(self.current_animation):
-                clear()
-                game_map.render()
+                reset_level()
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
@@ -441,7 +450,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.set_animation(Enemy.run_animation_left)
 
         collided_block = pygame.sprite.spritecollideany(self, non_visible_things)
-        collided_sprite = pygame.sprite.spritecollideany(self, obstacles)
+        collided_sprite = pygame.sprite.spritecollideany(self, obstacles_group)
         if collided_sprite or collided_block:
             self.facing *= -1
 
@@ -482,7 +491,7 @@ class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_img, x, y, block=False, half_block=False):
         super().__init__(all_sprites)
         if block or half_block:
-            self.add(obstacles)
+            self.add(obstacles_group)
         self.image = tile_img
         self.image = pygame.transform.scale(self.image, (tile_width, tile_height))
         self.rect = self.image.get_rect().move(x, y)
@@ -496,8 +505,12 @@ class Deco(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
 
 
-def clear():
-    all_sprites.empty()
+def reset_level():
+    global character
+    for group in all_groups:
+        group.empty()
+    character = game_map.render()
+    display.reset()
 
 
 class TiledMap:
@@ -541,15 +554,19 @@ class Camera:
         self.dx = 0
         self.dy = 0
 
-        self.target = None
-
         self.scroll_x = True
         self.scroll_y = True
 
         self.top_blocked = self.bottom_blocked = self.right_blocked = self.left_blocked = False
 
-    def set_target(self, target: pygame.sprite.Sprite):
-        self.target = target
+    def reset(self):
+        self.dx = 0
+        self.dy = 0
+
+        self.scroll_x = True
+        self.scroll_y = True
+
+        self.top_blocked = self.bottom_blocked = self.right_blocked = self.left_blocked = False
 
     # сдвинуть объект obj на смещение камеры
     def apply(self, obj):
@@ -574,21 +591,21 @@ class Camera:
                 self.top_blocked = True
 
     # позиционировать камеру на объекте target
-    def update(self):
-        self.dx = -(self.target.rect.x + self.target.rect.w // 2 - display_width // 2)
-        self.dy = -(self.target.rect.y + self.target.rect.h // 2 - display_height // 2)
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - display_width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - display_height // 2)
         if self.scroll_x is False:
-            if self.target.rect.x >= display_width // 2 and self.left_blocked:
+            if target.rect.x >= display_width // 2 and self.left_blocked:
                 self.scroll_x = True
                 self.left_blocked = False
-            elif self.target.rect.x + self.target.rect.w <= display_width // 2 and self.right_blocked:
+            elif target.rect.x + target.rect.w <= display_width // 2 and self.right_blocked:
                 self.scroll_x = True
                 self.right_blocked = False
         if self.scroll_y is False:
-            if self.target.rect.y >= display_height // 2 and self.top_blocked:
+            if target.rect.y >= display_height // 2 and self.top_blocked:
                 self.scroll_y = True
                 self.top_blocked = False
-            elif self.target.rect.y + self.target.rect.h <= display_height // 2 and self.bottom_blocked:
+            elif target.rect.y + target.rect.h <= display_height // 2 and self.bottom_blocked:
                 self.scroll_y = True
                 self.bottom_blocked = False
 
@@ -694,6 +711,10 @@ class Display:
         self.clock = pygame.time.Clock()  # объект игровых часов
         self.camera = Camera()  # объект игровой камеры
 
+    def reset(self):
+        self.screen_rect.x = self.screen_rect.y = 0
+        self.camera.reset()
+
     def set_level_size(self, level_size):
         self.screen_rect.width, self.screen_rect.height = level_size
 
@@ -701,7 +722,7 @@ class Display:
         self.clock.tick(FPS)
         self.screen.fill('black')
 
-        self.camera.update()
+        self.camera.update(character)
         for sprite in all_sprites:
             self.camera.apply(sprite)
         for block in non_visible_things:
@@ -723,9 +744,11 @@ if __name__ == '__main__':
     # Спрайты #
     all_sprites = pygame.sprite.Group()
     player_group = pygame.sprite.Group()
-    obstacles = pygame.sprite.Group()
+    obstacles_group = pygame.sprite.Group()
     non_visible_things = pygame.sprite.Group()
     mobs_group = pygame.sprite.Group()
+
+    all_groups = [all_sprites, player_group, obstacles_group, non_visible_things, mobs_group]
 
     # Игровые переменные #
     music = Music(MUSIC_VOLUME)
@@ -740,24 +763,18 @@ if __name__ == '__main__':
     if not TEST_MODE:
         character.check_standing()
 
-    display.camera.set_target(character)
-
     # Основной цикл #
     while True:
         # Проверка событий #
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
-                character.set_attack()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                character.set_death()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pause_menu()
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
-        if not character.attack:
+        if not character.attack and not character.death:
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 character.move(-SPEED, 0)
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
