@@ -723,9 +723,9 @@ def game_over():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_UP:
                     selected = "restart"
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_DOWN:
                     selected = "quit"
                 if event.key == pygame.K_RETURN:
                     if selected == "restart":
@@ -749,9 +749,9 @@ def game_over():
         restart_rect = text_restart.get_rect()
         quit_rect = text_quit.get_rect()
 
-        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 400))
-        display.screen.blit(text_restart, (100, display_height / 2))
-        display.screen.blit(text_quit, (display_width - 200, display_height / 2))
+        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 320))
+        display.screen.blit(text_restart, (display_width / 2 - (restart_rect.width / 2), 380))
+        display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 420))
         pygame.display.flip()
         display.clock.tick(FPS)
     if selected == 'restart':
