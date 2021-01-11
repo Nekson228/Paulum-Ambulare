@@ -242,10 +242,17 @@ class Character(pygame.sprite.Sprite):
             if not self.jump:
                 self.check_standing()
         self.check_enemy_collision()
+        self.check_out_of_bounds()
 
     def check_enemy_collision(self):
-        collided_enemy = pygame.sprite.spritecollideany(self, mobs_group)
-        if collided_enemy:
+        if not TEST_MODE:
+            collided_enemy = pygame.sprite.spritecollideany(self, mobs_group)
+            if collided_enemy:
+                if not self.death:
+                    self.set_death()
+
+    def check_out_of_bounds(self):
+        if self.rect.y >= display.screen_rect.y + display.screen_rect.h:
             if not self.death:
                 self.set_death()
 
@@ -584,6 +591,7 @@ class Camera:
         elif isinstance(obj, pygame.Rect):
             obj.x += self.dx if self.scroll_x else 0
             obj.y += self.dy if self.scroll_y else 0
+            print(obj, character.rect)
             if obj.x + obj.w <= display_width:
                 self.scroll_x = False
                 self.right_blocked = True
