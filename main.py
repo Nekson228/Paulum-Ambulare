@@ -541,11 +541,10 @@ class TiledMap:
         for tile_object in self.level_map.layernames['Objects']:
             if tile_object.type == 'Block':
                 Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
-        for entity in self.level_map.layernames['Characters']:
-            if entity.type == 'Player':
-                char = Character(entity.x, entity.y)
-            elif entity.type == 'Goblin':
-                Enemy(entity.x, entity.y)
+        for entity in self.level_map.layernames['Character']:
+            char = Character(entity.x, entity.y)
+        for entity in self.level_map.layernames['Mobs']:
+            Enemy(entity.x, entity.y)
         for block in self.level_map.layernames['Collisions']:
             if block.type == 'Collide':
                 Deco(block.image, block.x, block.y, int(block.width), int(block.height))

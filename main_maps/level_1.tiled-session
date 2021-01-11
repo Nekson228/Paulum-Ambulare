@@ -77,8 +77,8 @@
             "scale": 1.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 59.333333333333314,
-                "y": 177.33333333333334
+                "x": 960,
+                "y": 543.6666666666666
             }
         },
         "level_ex.tmx#Background": {
@@ -114,10 +114,10 @@
     "project": "level_1.tiled-project",
     "property.type": "float",
     "recentFiles": [
+        "untitled.tmx",
         "level_ex.tmx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Goblin.tsx",
-        "untitled.tmx",
         "level_1.tmx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Water.tsx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Background.tsx",
