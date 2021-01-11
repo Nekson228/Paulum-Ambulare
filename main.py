@@ -548,10 +548,10 @@ class TiledMap:
         for tile_object in self.level_map.layernames['Objects']:
             if tile_object.type == 'Block':
                 Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
-        for entity in self.level_map.layernames['Character']:
-            char = Character(entity.x, entity.y)
         for entity in self.level_map.layernames['Mobs']:
             Enemy(entity.x, entity.y)
+        for entity in self.level_map.layernames['Character']:
+            char = Character(entity.x, entity.y)
         for block in self.level_map.layernames['Collisions']:
             if block.type == 'Collide':
                 Deco(block.image, block.x, block.y, int(block.width), int(block.height))
@@ -591,7 +591,6 @@ class Camera:
         elif isinstance(obj, pygame.Rect):
             obj.x += self.dx if self.scroll_x else 0
             obj.y += self.dy if self.scroll_y else 0
-            print(obj, character.rect)
             if obj.x + obj.w <= display_width:
                 self.scroll_x = False
                 self.right_blocked = True
