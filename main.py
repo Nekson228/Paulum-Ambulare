@@ -11,6 +11,8 @@ LEFT = -1
 MUSIC_VOLUME = 0.1
 SFX_VOLUME = 0.2
 TEST_MODE = False
+TIMER_EVENT = pygame.USEREVENT
+pygame.time.set_timer(TIMER_EVENT, 100)
 
 player_x = 0
 player_y = 0  # нужно для объявления игрока
@@ -315,6 +317,7 @@ class Character(pygame.sprite.Sprite):
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
         self.death = True
         Character.death_sound.play()
+        stats.increase_attempts()
         pygame.mixer.music.fadeout(3000)
 
     def update(self):
@@ -350,7 +353,6 @@ class Character(pygame.sprite.Sprite):
         elif self.current_animation in (Character.die_animation_right, Character.die_animation_left):
             if self.animation_frame >= len(self.current_animation):
                 game_over()
-                reset_level()
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
@@ -761,6 +763,7 @@ def game_over():
         pygame.display.flip()
         display.clock.tick(FPS)
     if selected == 'restart':
+        reset_level()
         music.switch(1)
     elif selected == 'quit':
         main_menu()
@@ -781,10 +784,7 @@ class Display:
         self.screen_rect.width, self.screen_rect.height = level_size
 
     def update(self):
-        if character.death:
-            self.clock.tick(FPS // 4)
-        else:
-            self.clock.tick(FPS)
+        self.clock.tick(FPS if not character.death else FPS // 4)
         self.screen.fill('black')
 
         self.camera.update(character)
@@ -798,6 +798,22 @@ class Display:
         mobs_group.update()
 
         pygame.display.flip()
+
+
+class Stats:
+    def __init__(self):
+        self.attempts = 0
+        self.time_passed = 0
+
+    def increase_attempts(self):
+        self.attempts += 1
+
+    def increase_time(self, delta_time):
+        self.time_passed += delta_time
+        self.time_passed = round(self.time_passed, 1)
+
+    def get_stats(self):
+        return self.attempts, self.time_passed
 
 
 if __name__ == '__main__':
@@ -825,6 +841,7 @@ if __name__ == '__main__':
     level_tiles = level_width, level_height = game_map.get_level_size()  # размер уровня в тайлах
     display.set_level_size((level_width * tile_width, level_height * tile_height))
     character = game_map.render()
+    stats = Stats()
     if not TEST_MODE:
         character.check_standing()
 
@@ -836,6 +853,8 @@ if __name__ == '__main__':
                 terminate()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not character.death:
                 pause_menu()
+            if event.type == TIMER_EVENT:
+                stats.increase_time(0.1)
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
