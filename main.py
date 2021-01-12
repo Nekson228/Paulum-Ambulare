@@ -243,6 +243,12 @@ class Character(pygame.sprite.Sprite):
                 self.check_standing()
         self.check_enemy_collision()
         self.check_out_of_bounds()
+        self.check_finish()
+
+    def check_finish(self):
+        collided_object = pygame.sprite.spritecollideany(self, game_objects)
+        if collided_object and isinstance(collided_object, Finish):
+            print('finish')
 
     def check_enemy_collision(self):
         if not TEST_MODE:
@@ -503,9 +509,9 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_img, x, y, block=False, half_block=False):
+    def __init__(self, tile_img, x, y, block=False):
         super().__init__(all_sprites)
-        if block or half_block:
+        if block:
             self.add(obstacles_group)
         self.image = tile_img
         self.image = pygame.transform.scale(self.image, (tile_width, tile_height))
@@ -515,6 +521,14 @@ class Tile(pygame.sprite.Sprite):
 class Deco(pygame.sprite.Sprite):
     def __init__(self, img, x, y, w, h):
         super().__init__(non_visible_things)
+        self.image = img
+        self.image = pygame.transform.scale(self.image, (w, h))
+        self.rect = self.image.get_rect().move(x, y)
+
+
+class Finish(pygame.sprite.Sprite):
+    def __init__(self, img, x, y, w, h):
+        super().__init__(game_objects, all_sprites)
         self.image = img
         self.image = pygame.transform.scale(self.image, (w, h))
         self.rect = self.image.get_rect().move(x, y)
@@ -555,6 +569,8 @@ class TiledMap:
         for block in self.level_map.layernames['Collisions']:
             if block.type == 'Collide':
                 Deco(block.image, block.x, block.y, int(block.width), int(block.height))
+        for flag in self.level_map.layernames['Finish']:
+            Finish(flag.image, flag.x, flag.y, int(flag.width), int(flag.height))
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -781,10 +797,7 @@ class Display:
         self.screen_rect.width, self.screen_rect.height = level_size
 
     def update(self):
-        if character.death:
-            self.clock.tick(FPS // 4)
-        else:
-            self.clock.tick(FPS)
+        self.clock.tick(FPS if not character.death else FPS // 3)
         self.screen.fill('black')
 
         self.camera.update(character)
@@ -811,9 +824,10 @@ if __name__ == '__main__':
     player_group = pygame.sprite.Group()
     obstacles_group = pygame.sprite.Group()
     non_visible_things = pygame.sprite.Group()
+    game_objects = pygame.sprite.Group()
     mobs_group = pygame.sprite.Group()
 
-    all_groups = [all_sprites, player_group, obstacles_group, non_visible_things, mobs_group]
+    all_groups = [all_sprites, player_group, obstacles_group, non_visible_things, mobs_group, game_objects]
 
     # Игровые переменные #
     music = Music(MUSIC_VOLUME)

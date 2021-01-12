@@ -20,6 +20,9 @@
         "C:/Users/Первый/Desktop/LMS/PyGameProject/resources/Background.tsx": {
             "scaleInDock": 0.33
         },
+        "C:/Users/Первый/Desktop/LMS/PyGameProject/resources/Player.tsx": {
+            "dynamicWrapping": true
+        },
         "C:/Users/Первый/Desktop/LMS/PyGameProject/resources/Terrain_1.tsx": {
             "scaleInDock": 1
         },

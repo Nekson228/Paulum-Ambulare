@@ -6,12 +6,12 @@
  <tileset firstgid="219" source="../resources/Goblin.tsx"/>
  <tileset firstgid="247" source="../resources/Player.tsx"/>
  <tileset firstgid="319" source="../resources/finish.tsx"/>
- <layer id="1" name="Background" width="30" height="17">
+ <layer id="1" name="Background" width="30" height="17" locked="1">
   <data encoding="base64" compression="zlib">
    eJybzsDAMH0U0xzPHiA8fxQPa7x4gPDyUUwXvHqA8PpRPKwxAPrHRbo=
   </data>
  </layer>
- <objectgroup id="7" name="Objects">
+ <objectgroup id="7" name="Objects" locked="1">
   <object id="6" type="Block" gid="17" x="0.030303" y="960.933" width="64" height="64"/>
   <object id="7" type="Block" gid="79" x="0.030303" y="896.917" width="64" height="64"/>
   <object id="8" type="Block" gid="16" x="64.0465" y="896.917" width="64" height="64"/>
@@ -156,10 +156,10 @@
   <object id="163" gid="4" x="1282.34" y="512.82" width="64" height="64"/>
   <object id="189" type="Block" gid="4" x="1408" y="704" width="64" height="64"/>
  </objectgroup>
- <objectgroup id="11" name="Character">
+ <objectgroup id="11" name="Character" locked="1">
   <object id="230" type="Player" gid="292" x="1159.5" y="384.75" width="38" height="58"/>
  </objectgroup>
- <objectgroup id="9" name="Mobs">
+ <objectgroup id="9" name="Mobs" locked="1">
   <object id="231" type="Goblin" gid="219" x="652.667" y="832" width="66" height="72"/>
   <object id="237" type="Goblin" gid="219" x="532.667" y="768" width="66" height="72"/>
   <object id="238" type="Goblin" gid="219" x="356" y="768" width="66" height="72"/>
@@ -177,7 +177,7 @@
   <object id="250" type="Goblin" gid="219" x="1714.67" y="895.333" width="66" height="72"/>
   <object id="251" type="Goblin" gid="219" x="1569.33" y="767.333" width="66" height="72"/>
  </objectgroup>
- <objectgroup id="10" name="Collisions">
+ <objectgroup id="10" name="Collisions" locked="1">
   <object id="252" type="Collide" gid="178" x="644" y="727.333" width="16" height="16"/>
   <object id="253" type="Collide" gid="178" x="492" y="727.33" width="16" height="16"/>
   <object id="254" type="Collide" gid="178" x="452" y="727.33" width="16" height="16"/>
@@ -204,7 +204,7 @@
  <objectgroup id="12" name="Finish">
   <object id="275" gid="319" x="7.94788" y="640.527" width="32" height="64"/>
  </objectgroup>
- <layer id="2" name="Water" width="30" height="17">
+ <layer id="2" name="Water" width="30" height="17" locked="1">
   <data encoding="base64" compression="zlib">
    eJxjYBgFo2AUjIJRMAoGHmweIHx5hGEAWvxGbw==
   </data>
