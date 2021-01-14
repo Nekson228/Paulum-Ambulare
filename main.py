@@ -353,6 +353,7 @@ class Character(pygame.sprite.Sprite):
         elif self.current_animation in (Character.die_animation_right, Character.die_animation_left):
             if self.animation_frame >= len(self.current_animation):
                 game_over()
+                reset_level()
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
