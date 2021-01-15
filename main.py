@@ -120,56 +120,6 @@ class Character(pygame.sprite.Sprite):
         pygame.transform.flip(load_image('character/adventurer-fall-00.png'), True, False),
         pygame.transform.flip(load_image('character/adventurer-fall-01.png'), True, False)
     ]
-    attack_animations_right = [
-        [
-            load_image('character/adventurer-attack1-00.png'),
-            load_image('character/adventurer-attack1-01.png'),
-            load_image('character/adventurer-attack1-02.png'),
-            load_image('character/adventurer-attack1-03.png'),
-            load_image('character/adventurer-attack1-04.png'),
-        ],
-        [
-            load_image('character/adventurer-attack2-00.png'),
-            load_image('character/adventurer-attack2-01.png'),
-            load_image('character/adventurer-attack2-02.png'),
-            load_image('character/adventurer-attack2-03.png'),
-            load_image('character/adventurer-attack2-04.png'),
-            load_image('character/adventurer-attack2-05.png'),
-        ],
-        [
-            load_image('character/adventurer-attack3-00.png'),
-            load_image('character/adventurer-attack3-01.png'),
-            load_image('character/adventurer-attack3-02.png'),
-            load_image('character/adventurer-attack3-03.png'),
-            load_image('character/adventurer-attack3-04.png'),
-            load_image('character/adventurer-attack3-05.png'),
-        ]
-    ]
-    attack_animations_left = [
-        [
-            pygame.transform.flip(load_image('character/adventurer-attack1-00.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack1-01.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack1-02.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack1-03.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack1-04.png'), True, False),
-        ],
-        [
-            pygame.transform.flip(load_image('character/adventurer-attack2-00.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack2-01.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack2-02.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack2-03.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack2-04.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack2-05.png'), True, False),
-        ],
-        [
-            pygame.transform.flip(load_image('character/adventurer-attack3-00.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack3-01.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack3-02.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack3-03.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack3-04.png'), True, False),
-            pygame.transform.flip(load_image('character/adventurer-attack3-05.png'), True, False),
-        ],
-    ]
     die_animation_right = [
         load_image('character/adventurer-die-00.png'),
         load_image('character/adventurer-die-01.png'),
@@ -210,7 +160,6 @@ class Character(pygame.sprite.Sprite):
 
         self.jump = False
         self.fall = False
-        self.attack = False
         self.death = False
 
     def move(self, x, y):
@@ -286,9 +235,7 @@ class Character(pygame.sprite.Sprite):
         if not self.death:
             self.current_animation = animation
             self.animation_frame = 0
-            if animation in Character.attack_animations_right or animation in Character.attack_animations_left:
-                self.animation_speed = Character.ATTACK_ANIMATION_SPEED
-            elif animation in (Character.idle_animation_right, Character.idle_animation_left):
+            if animation in (Character.idle_animation_right, Character.idle_animation_left):
                 self.animation_speed = Character.IDLE_ANIMATION_SPEED
             else:
                 self.animation_speed = Character.OTHER_ANIMATION_SPEED
@@ -311,15 +258,6 @@ class Character(pygame.sprite.Sprite):
         if self.current_animation in (Character.run_animation_right, Character.run_animation_left):
             self.set_animation(Character.idle_animation_right if self.facing == RIGHT
                                else Character.idle_animation_left)
-
-    def set_attack(self):
-        if not self.attack and not self.jump and not self.fall:
-            self.set_animation(Character.attack_animations_right[self.attack_animation_type] if self.facing == RIGHT
-                               else Character.attack_animations_left[self.attack_animation_type])
-            self.attack = True
-            self.attack_animation_type += 1
-            if self.attack_animation_type == len(Character.attack_animations_right):
-                self.attack_animation_type = 0
 
     def set_death(self):
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
@@ -351,13 +289,7 @@ class Character(pygame.sprite.Sprite):
 
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
-        if self.current_animation in Character.attack_animations_right or \
-                self.current_animation in Character.attack_animations_left:
-            if self.animation_frame >= len(self.current_animation):
-                self.set_animation(Character.idle_animation_right if self.facing == RIGHT
-                                   else Character.idle_animation_left)
-                self.attack = False
-        elif self.current_animation in (Character.die_animation_right, Character.die_animation_left):
+        if self.current_animation in (Character.die_animation_right, Character.die_animation_left):
             if self.animation_frame >= len(self.current_animation):
                 game_over()
                 reset_level(from_death=True)
@@ -368,22 +300,8 @@ class Character(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     # Константы персонажа #
     IDLE_ANIMATION_SPEED = 0.1
-    ATTACK_ANIMATION_SPEED = 0.4
-    OTHER_ANIMATION_SPEED = 0.2
-
-    JUMP_HEIGHT = 8  # высота прыжка персонажа
-    MIN_FALL_SPEED = 1  # минимальная скорость падения
-    MAX_FALL_SPEED = JUMP_HEIGHT - 1  # максимальная скорость падения
 
     # Анимации персонажа #
-    idle_animation_right = [
-        load_image('enemy/idle_1.png'),
-        load_image('enemy/idle_2.png')
-    ]
-    idle_animation_left = [
-        pygame.transform.flip(load_image('enemy/idle_1.png'), True, False),
-        pygame.transform.flip(load_image('enemy/idle_2.png'), True, False)
-    ]
     run_animation_right = [
         load_image('enemy/run_1.png'),
         load_image('enemy/run_2.png'),
@@ -404,54 +322,11 @@ class Enemy(pygame.sprite.Sprite):
         pygame.transform.flip(load_image('enemy/run_7.png'), True, False),
         pygame.transform.flip(load_image('enemy/run_8.png'), True, False)
     ]
-    taking_hit_animations_right = [
-        load_image('enemy/hit_1.png'),
-        load_image('enemy/hit_2.png'),
-        load_image('enemy/hit_3.png'),
-        load_image('enemy/hit_4.png')
-    ]
-    taking_hit_animations_left = [
-        pygame.transform.flip(load_image('enemy/hit_1.png'), True, False),
-        pygame.transform.flip(load_image('enemy/hit_2.png'), True, False),
-        pygame.transform.flip(load_image('enemy/hit_3.png'), True, False),
-        pygame.transform.flip(load_image('enemy/hit_4.png'), True, False)
-    ]
-    death_animations_right = [
-        load_image('enemy/death_1.png'),
-        load_image('enemy/death_2.png'),
-        load_image('enemy/death_3.png'),
-        load_image('enemy/death_4.png')
-    ]
-    death_animations_left = [
-        pygame.transform.flip(load_image('enemy/death_1.png'), True, False),
-        pygame.transform.flip(load_image('enemy/death_2.png'), True, False),
-        pygame.transform.flip(load_image('enemy/death_3.png'), True, False),
-        pygame.transform.flip(load_image('enemy/death_4.png'), True, False)
-    ]
-    attack_animations_right = [
-        load_image('enemy/attack_1.png'),
-        load_image('enemy/attack_2.png'),
-        load_image('enemy/attack_3.png'),
-        load_image('enemy/attack_4.png'),
-        load_image('enemy/attack_5.png'),
-        load_image('enemy/attack_6.png'),
-        load_image('enemy/attack_7.png'),
-        load_image('enemy/attack_8.png')]
-    attack_animations_left = [
-        pygame.transform.flip(load_image('enemy/attack_1.png'), True, False),
-        pygame.transform.flip(load_image('enemy/attack_2.png'), True, False),
-        pygame.transform.flip(load_image('enemy/attack_3.png'), True, False),
-        pygame.transform.flip(load_image('enemy/attack_4.png'), True, False),
-        pygame.transform.flip(load_image('enemy/attack_5.png'), True, False),
-        pygame.transform.flip(load_image('enemy/attack_6.png'), True, False),
-        pygame.transform.flip(load_image('enemy/attack_7.png'), True, False),
-        pygame.transform.flip(load_image('enemy/attack_8.png'), True, False)
-    ]
 
     def __init__(self, x, y):
         super().__init__(mobs_group, all_sprites)
 
-        self.current_animation = Enemy.idle_animation_right
+        self.current_animation = Enemy.run_animation_right
         self.animation_frame = 0
         self.attack_animation_type = 0
         self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
@@ -459,11 +334,6 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
 
         self.facing = RIGHT
-        self.jump_delta = Enemy.JUMP_HEIGHT
-        self.fall_delta = Enemy.MIN_FALL_SPEED
-
-        self.fall = False
-        self.attack = False
 
     def move(self, x):
         self.rect.x += x * self.facing
@@ -482,32 +352,11 @@ class Enemy(pygame.sprite.Sprite):
     def set_animation(self, animation):
         self.current_animation = animation
         self.animation_frame = 0
-        if animation in Enemy.attack_animations_right or animation in Enemy.attack_animations_left:
-            self.animation_speed = Enemy.ATTACK_ANIMATION_SPEED
-        elif animation in (Enemy.idle_animation_right, Enemy.idle_animation_left):
-            self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
-        else:
-            self.animation_speed = Enemy.OTHER_ANIMATION_SPEED
-
-    def set_attack(self):
-        if not self.attack and not self.fall:
-            self.set_animation(Enemy.attack_animations_right[self.attack_animation_type] if self.facing == RIGHT
-                               else Enemy.attack_animations_left[self.attack_animation_type])
-            self.attack = True
-            self.attack_animation_type += 1
-            if self.attack_animation_type == len(Enemy.attack_animations_right):
-                self.attack_animation_type = 0
 
     def update(self):
         self.move(SPEED // 5)
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
-        if self.current_animation in Enemy.attack_animations_right or \
-                self.current_animation in Enemy.attack_animations_left:
-            if self.animation_frame >= len(self.current_animation):
-                self.set_animation(Enemy.idle_animation_right if self.facing == RIGHT
-                                   else Enemy.idle_animation_left)
-                self.attack = False
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
@@ -863,7 +712,7 @@ class Display:
         self.screen_rect.width, self.screen_rect.height = level_size
 
     def update(self):
-        self.clock.tick(FPS if not character.death else FPS // 3)
+        self.clock.tick(FPS if not character.death else FPS // 2)
         self.screen.fill('black')
 
         self.camera.update(character)
