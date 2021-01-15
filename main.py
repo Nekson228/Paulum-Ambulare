@@ -57,7 +57,8 @@ def text_format(message, font_filename, size, color):
 class Music:
     tracks = ['resources/music/Intro Theme.mp3',
               'resources/music/Grasslands Theme.mp3',
-              'resources/music/Game Over.mp3']
+              'resources/music/Game Over.mp3',
+              'resources/music/Victory Theme.mp3']
 
     def __init__(self, volume: float):
         self.current_track = 0
@@ -245,6 +246,13 @@ class Character(pygame.sprite.Sprite):
                 self.check_standing()
         self.check_enemy_collision()
         self.check_out_of_bounds()
+        self.check_finish()
+
+    def check_finish(self):
+        collided_object = pygame.sprite.spritecollideany(self, game_objects)
+        if collided_object and isinstance(collided_object, Finish):
+            finish()
+            reset_level()
 
     def check_enemy_collision(self):
         if not TEST_MODE:
@@ -317,7 +325,6 @@ class Character(pygame.sprite.Sprite):
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
         self.death = True
         Character.death_sound.play()
-        stats.increase_attempts()
         pygame.mixer.music.fadeout(3000)
 
     def update(self):
@@ -353,7 +360,7 @@ class Character(pygame.sprite.Sprite):
         elif self.current_animation in (Character.die_animation_right, Character.die_animation_left):
             if self.animation_frame >= len(self.current_animation):
                 game_over()
-                reset_level()
+                reset_level(from_death=True)
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
@@ -506,9 +513,9 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_img, x, y, block=False, half_block=False):
+    def __init__(self, tile_img, x, y, block=False):
         super().__init__(all_sprites)
-        if block or half_block:
+        if block:
             self.add(obstacles_group)
         self.image = tile_img
         self.image = pygame.transform.scale(self.image, (tile_width, tile_height))
@@ -523,8 +530,21 @@ class Deco(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
 
 
-def reset_level():
+class Finish(pygame.sprite.Sprite):
+    def __init__(self, img, x, y, w, h):
+        super().__init__(game_objects, all_sprites)
+        self.image = img
+        self.image = pygame.transform.scale(self.image, (w, h))
+        self.rect = self.image.get_rect().move(x, y)
+
+
+def reset_level(from_death=False):
     global character
+    if from_death:
+        stats.increase_attempts()
+    else:
+        stats.attempts = 1
+    stats.time_passed = 0
     for group in all_groups:
         group.empty()
     character = game_map.render()
@@ -558,6 +578,8 @@ class TiledMap:
         for block in self.level_map.layernames['Collisions']:
             if block.type == 'Collide':
                 Deco(block.image, block.x, block.y, int(block.width), int(block.height))
+        for flag in self.level_map.layernames['Finish']:
+            Finish(flag.image, flag.x, flag.y, int(flag.width), int(flag.height))
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -770,6 +792,62 @@ def game_over():
         main_menu()
 
 
+def finish():
+    pygame.mixer.music.load(Music.tracks[3])
+    pygame.mixer.music.play()
+    attempts, time = stats.get_stats()
+    attempts_text = text_format(f"ATTEMPTS: {attempts}", font, 20, 'yellow')
+    time_text = text_format(f"TIME: {time}", font, 20, 'yellow')
+    attempts_template = attempts_text.get_rect()
+    time_template = time_text.get_rect()
+    menu = True
+    background = pygame.transform.scale(load_image('menu_screens/victory_screen.png'), (display_width, display_height))
+    selected = "retry"
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = "retry"
+                elif event.key == pygame.K_DOWN:
+                    selected = "quit"
+                if event.key == pygame.K_RETURN:
+                    if selected == "retry":
+                        menu = False
+                    if selected == "quit":
+                        menu = False
+
+        display.screen.fill('black')
+        display.screen.blit(background, (0, 0))
+        title = text_format("YOU WIN!", font, 60, 'yellow')
+        if selected == "retry":
+            text_retry = text_format(">RETRY<", font, 20, 'yellow')
+        else:
+            text_retry = text_format("RETRY", font, 20, 'yellow')
+        if selected == "quit":
+            text_quit = text_format(">QUIT<", font, 20, 'yellow')
+        else:
+            text_quit = text_format("QUIT", font, 20, 'yellow')
+
+        title_rect = title.get_rect()
+        retry_rect = text_retry.get_rect()
+        quit_rect = text_quit.get_rect()
+
+        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 60))
+        display.screen.blit(text_retry, (display_width / 2 - (retry_rect.width / 2), 180))
+        display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 220))
+        display.screen.blit(attempts_text, (100, 200))
+        display.screen.blit(time_text, (display_width - time_template.width - 100, 200))
+        pygame.display.flip()
+        display.clock.tick(FPS)
+    if selected == 'retry':
+        music.switch(1)
+    elif selected == 'quit':
+        main_menu()
+
+
 class Display:
     def __init__(self, screen_size):
         self.screen = pygame.display.set_mode(screen_size)
@@ -785,7 +863,7 @@ class Display:
         self.screen_rect.width, self.screen_rect.height = level_size
 
     def update(self):
-        self.clock.tick(FPS if not character.death else FPS // 4)
+        self.clock.tick(FPS if not character.death else FPS // 3)
         self.screen.fill('black')
 
         self.camera.update(character)
@@ -803,7 +881,7 @@ class Display:
 
 class Stats:
     def __init__(self):
-        self.attempts = 0
+        self.attempts = 1
         self.time_passed = 0
 
     def increase_attempts(self):
@@ -828,9 +906,10 @@ if __name__ == '__main__':
     player_group = pygame.sprite.Group()
     obstacles_group = pygame.sprite.Group()
     non_visible_things = pygame.sprite.Group()
+    game_objects = pygame.sprite.Group()
     mobs_group = pygame.sprite.Group()
 
-    all_groups = [all_sprites, player_group, obstacles_group, non_visible_things, mobs_group]
+    all_groups = [all_sprites, player_group, obstacles_group, non_visible_things, mobs_group, game_objects]
 
     # Игровые переменные #
     music = Music(MUSIC_VOLUME)

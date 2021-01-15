@@ -20,6 +20,9 @@
         "C:/Users/Первый/Desktop/LMS/PyGameProject/resources/Background.tsx": {
             "scaleInDock": 0.33
         },
+        "C:/Users/Первый/Desktop/LMS/PyGameProject/resources/Player.tsx": {
+            "dynamicWrapping": true
+        },
         "C:/Users/Первый/Desktop/LMS/PyGameProject/resources/Terrain_1.tsx": {
             "scaleInDock": 1
         },
@@ -49,6 +52,9 @@
             "dynamicWrapping": false,
             "scaleInDock": 1,
             "scaleInEditor": 1
+        },
+        "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/finish.tsx": {
+            "dynamicWrapping": true
         },
         "Static_Objects.tsx": {
             "dynamicWrapping": true,
