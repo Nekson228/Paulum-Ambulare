@@ -201,6 +201,7 @@ class Character(pygame.sprite.Sprite):
         collided_object = pygame.sprite.spritecollideany(self, game_objects)
         if collided_object and isinstance(collided_object, Finish):
             finish()
+            stats.reset_attempts()
             reset_level()
 
     def check_enemy_collision(self):
@@ -262,6 +263,7 @@ class Character(pygame.sprite.Sprite):
     def set_death(self):
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
         self.death = True
+        stats.increase_attempts()
         Character.death_sound.play()
         pygame.mixer.music.fadeout(3000)
 
@@ -292,7 +294,7 @@ class Character(pygame.sprite.Sprite):
         if self.current_animation in (Character.die_animation_right, Character.die_animation_left):
             if self.animation_frame >= len(self.current_animation):
                 game_over()
-                reset_level(from_death=True)
+                reset_level()
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
 
@@ -387,13 +389,9 @@ class Finish(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
 
 
-def reset_level(from_death=False):
+def reset_level():
     global character
-    if from_death:
-        stats.increase_attempts()
-    else:
-        stats.attempts = 1
-    stats.time_passed = 0
+    stats.reset_time()
     for group in all_groups:
         group.empty()
     character = game_map.render()
@@ -733,6 +731,9 @@ class Stats:
         self.attempts = 1
         self.time_passed = 0
 
+    def get_stats(self):
+        return self.attempts, self.time_passed
+
     def increase_attempts(self):
         self.attempts += 1
 
@@ -740,8 +741,11 @@ class Stats:
         self.time_passed += delta_time
         self.time_passed = round(self.time_passed, 1)
 
-    def get_stats(self):
-        return self.attempts, self.time_passed
+    def reset_attempts(self):
+        self.attempts = 1
+
+    def reset_time(self):
+        self.time_passed = 0
 
 
 if __name__ == '__main__':
@@ -787,7 +791,7 @@ if __name__ == '__main__':
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
-        if character.death:
+        if not character.death:
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 character.move(-SPEED, 0)
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
