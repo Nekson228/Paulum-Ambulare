@@ -55,7 +55,8 @@ def text_format(message, font_filename, size, color):
 class Music:
     tracks = ['resources/music/Intro Theme.mp3',
               'resources/music/Grasslands Theme.mp3',
-              'resources/music/Game Over.mp3']
+              'resources/music/Game Over.mp3',
+              'resources/music/Victory Theme.mp3']
 
     def __init__(self, volume: float):
         self.current_track = 0
@@ -248,7 +249,8 @@ class Character(pygame.sprite.Sprite):
     def check_finish(self):
         collided_object = pygame.sprite.spritecollideany(self, game_objects)
         if collided_object and isinstance(collided_object, Finish):
-            print('finish')
+            finish()
+            reset_level()
 
     def check_enemy_collision(self):
         if not TEST_MODE:
@@ -777,6 +779,55 @@ def game_over():
         pygame.display.flip()
         display.clock.tick(FPS)
     if selected == 'restart':
+        music.switch(1)
+    elif selected == 'quit':
+        main_menu()
+
+
+def finish():
+    pygame.mixer.music.load(Music.tracks[3])
+    pygame.mixer.music.play()
+    menu = True
+    background = pygame.transform.scale(load_image('menu_screens/victory_screen.png'), (display_width, display_height))
+    selected = "retry"
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = "retry"
+                elif event.key == pygame.K_DOWN:
+                    selected = "quit"
+                if event.key == pygame.K_RETURN:
+                    if selected == "retry":
+                        menu = False
+                    if selected == "quit":
+                        menu = False
+
+        display.screen.fill('black')
+        display.screen.blit(background, (0, 0))
+        title = text_format("YOU WIN!", font, 60, 'yellow')
+        if selected == "retry":
+            text_retry = text_format(">RETRY<", font, 20, 'yellow')
+        else:
+            text_retry = text_format("RETRY", font, 20, 'yellow')
+        if selected == "quit":
+            text_quit = text_format(">QUIT<", font, 20, 'yellow')
+        else:
+            text_quit = text_format("QUIT", font, 20, 'yellow')
+
+        title_rect = title.get_rect()
+        retry_rect = text_retry.get_rect()
+        quit_rect = text_quit.get_rect()
+
+        display.screen.blit(title, (display_width / 2 - (title_rect.width / 2), 60))
+        display.screen.blit(text_retry, (display_width / 2 - (retry_rect.width / 2), 180))
+        display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 220))
+        pygame.display.flip()
+        display.clock.tick(FPS)
+    if selected == 'retry':
         music.switch(1)
     elif selected == 'quit':
         main_menu()
