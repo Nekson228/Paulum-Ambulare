@@ -787,7 +787,7 @@ if __name__ == '__main__':
 
         # Передвижение персонажа #
         keys = pygame.key.get_pressed()
-        if not character.attack and not character.death:
+        if character.death:
             if keys[pygame.K_LEFT] or keys[pygame.K_a]:
                 character.move(-SPEED, 0)
             if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
