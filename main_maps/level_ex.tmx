@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="64" tileheight="64" infinite="0" nextlayerid="14" nextobjectid="277">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="30" height="17" tilewidth="64" tileheight="64" infinite="0" nextlayerid="14" nextobjectid="288">
  <tileset firstgid="1" source="../resources/Terrain_1.tsx"/>
  <tileset firstgid="151" source="../resources/Background.tsx"/>
  <tileset firstgid="179" source="../resources/Water.tsx"/>
  <tileset firstgid="219" source="../resources/Goblin.tsx"/>
  <tileset firstgid="247" source="../resources/Player.tsx"/>
- <tileset firstgid="319" source="../resources/finish.tsx"/>
+ <tileset firstgid="319" source="../resources/Game_Objects.tsx"/>
  <layer id="1" name="Background" width="30" height="17" locked="1">
   <data encoding="base64" compression="zlib">
    eJybzsDAMH0U0xzPHiA8fxQPa7x4gPDyUUwXvHqA8PpRPKwxAPrHRbo=
   </data>
  </layer>
- <objectgroup id="7" name="Objects" locked="1">
+ <objectgroup id="7" name="Platforms" locked="1">
   <object id="6" type="Block" gid="17" x="0.030303" y="960.933" width="64" height="64"/>
   <object id="7" type="Block" gid="79" x="0.030303" y="896.917" width="64" height="64"/>
   <object id="8" type="Block" gid="16" x="64.0465" y="896.917" width="64" height="64"/>
@@ -201,8 +201,11 @@
   <object id="272" type="Collide" gid="178" x="1452" y="407.33" width="16" height="16"/>
   <object id="274" type="Collide" gid="178" x="-24.6667" y="793.997" width="16" height="16"/>
  </objectgroup>
- <objectgroup id="12" name="Finish">
-  <object id="275" gid="319" x="7.94788" y="640.527" width="32" height="64"/>
+ <objectgroup id="12" name="Game Objects">
+  <object id="277" type="Finish" gid="319" x="8.33333" y="640" width="32" height="64"/>
+  <object id="285" type="Coin" gid="323" x="641" y="448" width="64" height="64"/>
+  <object id="286" type="Coin" gid="323" x="704" y="576" width="64" height="64"/>
+  <object id="287" type="Coin" gid="323" x="127.333" y="576" width="64" height="64"/>
  </objectgroup>
  <layer id="2" name="Water" width="30" height="17" locked="1">
   <data encoding="base64" compression="zlib">

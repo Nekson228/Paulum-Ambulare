@@ -140,6 +140,7 @@ class Character(pygame.sprite.Sprite):
     ]
     jump_sound = pygame.mixer.Sound('resources/sounds/jump.wav')
     death_sound = pygame.mixer.Sound('resources/sounds/hurt.wav')
+    coin_sound = pygame.mixer.Sound('resources/sounds/coin.wav')
 
     jump_sound.set_volume(SFX_VOLUME)
     death_sound.set_volume(SFX_VOLUME)
@@ -195,7 +196,15 @@ class Character(pygame.sprite.Sprite):
                 self.check_standing()
         self.check_enemy_collision()
         self.check_out_of_bounds()
+        self.check_coin()
         self.check_finish()
+
+    def check_coin(self):
+        collided_object = pygame.sprite.spritecollideany(self, game_objects)
+        if collided_object and isinstance(collided_object, Coin):
+            Character.coin_sound.play()
+            stats.increase_coins()
+            collided_object.kill()
 
     def check_finish(self):
         collided_object = pygame.sprite.spritecollideany(self, game_objects)
@@ -333,7 +342,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attack_animation_type = 0
         self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
         self.image = self.current_animation[self.animation_frame]
-        self.rect = self.image.get_rect().move(x, y)
+        self.rect = self.image.get_rect().move(x, y).inflate(-5, -5)
 
         self.facing = RIGHT
 
@@ -361,6 +370,40 @@ class Enemy(pygame.sprite.Sprite):
         self.animation_frame = round(self.animation_frame, 1)
         self.animation_frame %= len(self.current_animation)
         self.image = self.current_animation[int(self.animation_frame)]
+
+
+class Coin(pygame.sprite.Sprite):
+    IDLE_ANIMATION_SPEED = 0.1
+
+    idle_animation = [
+        load_image('tilesheets/coin_1.png'),
+        load_image('tilesheets/coin_2.png'),
+        load_image('tilesheets/coin_3.png'),
+        load_image('tilesheets/coin_4.png'),
+        load_image('tilesheets/coin_5.png'),
+        load_image('tilesheets/coin_6.png'),
+        load_image('tilesheets/coin_7.png'),
+        load_image('tilesheets/coin_8.png'),
+        load_image('tilesheets/coin_9.png'),
+        load_image('tilesheets/coin_10.png'),
+        load_image('tilesheets/coin_11.png'),
+        load_image('tilesheets/coin_12.png'),
+    ]
+
+    def __init__(self, x, y):
+        super().__init__(game_objects, all_sprites)
+
+        self.animation_frame = 0
+        self.attack_animation_type = 0
+        self.animation_speed = Coin.IDLE_ANIMATION_SPEED
+        self.image = Coin.idle_animation[self.animation_frame]
+        self.rect = self.image.get_rect().move(x, y)
+
+    def update(self):
+        self.animation_frame += self.animation_speed
+        self.animation_frame = round(self.animation_frame, 1)
+        self.animation_frame %= len(Coin.idle_animation)
+        self.image = Coin.idle_animation[int(self.animation_frame)]
 
 
 class Tile(pygame.sprite.Sprite):
@@ -392,6 +435,8 @@ class Finish(pygame.sprite.Sprite):
 def reset_level():
     global character
     stats.reset_time()
+    stats.reset_coins()
+    game_map.reset_coins()
     for group in all_groups:
         group.empty()
     character = game_map.render()
@@ -402,6 +447,7 @@ class TiledMap:
     def __init__(self, tmx_map):
         tmx_map = "main_maps/" + tmx_map
         self.level_map = pytmx.load_pygame(tmx_map, pixelalpha=True)
+        self.coins = 0
 
     def get_tile_size(self):
         return self.level_map.tilewidth, self.level_map.tileheight
@@ -409,13 +455,19 @@ class TiledMap:
     def get_level_size(self):
         return self.level_map.width, self.level_map.height
 
+    def get_coins(self):
+        return self.coins
+
+    def reset_coins(self):
+        self.coins = 0
+
     def render(self):
         char = None
         for x, y, gid in self.level_map.layernames['Background']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
                 Tile(tile, x * tile_width, y * tile_height)
-        for tile_object in self.level_map.layernames['Objects']:
+        for tile_object in self.level_map.layernames['Platforms']:
             if tile_object.type == 'Block':
                 Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
         for entity in self.level_map.layernames['Mobs']:
@@ -425,8 +477,12 @@ class TiledMap:
         for block in self.level_map.layernames['Collisions']:
             if block.type == 'Collide':
                 Deco(block.image, block.x, block.y, int(block.width), int(block.height))
-        for flag in self.level_map.layernames['Finish']:
-            Finish(flag.image, flag.x, flag.y, int(flag.width), int(flag.height))
+        for entity in self.level_map.layernames['Game Objects']:
+            if entity.type == 'Finish':
+                Finish(entity.image, entity.x, entity.y, int(entity.width), int(entity.height))
+            elif entity.type == 'Coin':
+                Coin(entity.x, entity.y)
+                self.coins += 1
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
@@ -642,10 +698,11 @@ def game_over():
 def finish():
     pygame.mixer.music.load(Music.tracks[3])
     pygame.mixer.music.play()
-    attempts, time = stats.get_stats()
+    attempts, time, coins = stats.get_stats()
+    all_coins = game_map.get_coins()
     attempts_text = text_format(f"ATTEMPTS: {attempts}", font, 20, 'yellow')
     time_text = text_format(f"TIME: {time}", font, 20, 'yellow')
-    attempts_template = attempts_text.get_rect()
+    coins_text = text_format(f"COINS: {coins}/{all_coins}", font, 20, 'yellow')
     time_template = time_text.get_rect()
     menu = True
     background = pygame.transform.scale(load_image('menu_screens/victory_screen.png'), (display_width, display_height))
@@ -687,6 +744,7 @@ def finish():
         display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 220))
         display.screen.blit(attempts_text, (100, 200))
         display.screen.blit(time_text, (display_width - time_template.width - 100, 200))
+        display.screen.blit(coins_text, (100, 240))
         pygame.display.flip()
         display.clock.tick(FPS)
     if selected == 'retry':
@@ -721,6 +779,7 @@ class Display:
         self.camera.apply(self.screen_rect)
         all_sprites.draw(self.screen)
         character.update()
+        game_objects.update()
         mobs_group.update()
 
         pygame.display.flip()
@@ -729,13 +788,17 @@ class Display:
 class Stats:
     def __init__(self):
         self.attempts = 1
+        self.coins = 0
         self.time_passed = 0
 
     def get_stats(self):
-        return self.attempts, self.time_passed
+        return self.attempts, self.time_passed, self.coins
 
     def increase_attempts(self):
         self.attempts += 1
+
+    def increase_coins(self):
+        self.coins += 1
 
     def increase_time(self, delta_time):
         self.time_passed += delta_time
@@ -743,6 +806,9 @@ class Stats:
 
     def reset_attempts(self):
         self.attempts = 1
+
+    def reset_coins(self):
+        self.coins = 0
 
     def reset_time(self):
         self.time_passed = 0
@@ -762,7 +828,7 @@ if __name__ == '__main__':
     game_objects = pygame.sprite.Group()
     mobs_group = pygame.sprite.Group()
 
-    all_groups = [all_sprites, player_group, obstacles_group, non_visible_things, mobs_group, game_objects]
+    all_groups = [all_sprites, player_group, obstacles_group, non_visible_things, game_objects, mobs_group]
 
     # Игровые переменные #
     music = Music(MUSIC_VOLUME)
