@@ -834,6 +834,7 @@ if __name__ == '__main__':
     music = Music(MUSIC_VOLUME)
     font = "8 Bit Font.ttf"
     display = Display(display_size)
+    pygame.display.set_icon(load_image('icon.png'))
     main_menu()
     game_map = TiledMap('level_ex.tmx')  # карта уровня
     tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов в пикселях
