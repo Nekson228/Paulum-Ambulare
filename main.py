@@ -342,7 +342,7 @@ class Enemy(pygame.sprite.Sprite):
         self.attack_animation_type = 0
         self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
         self.image = self.current_animation[self.animation_frame]
-        self.rect = self.image.get_rect().move(x, y).inflate(-5, -5)
+        self.rect = self.image.get_rect().move(x, y).inflate(-20, 0)
 
         self.facing = RIGHT
 
