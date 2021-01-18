@@ -10,7 +10,7 @@ MUSIC_VOLUME = 0.1  # громкость музыки в процентах
 SFX_VOLUME = 0.2  # громкость звуков в процентах
 RIGHT = 1
 LEFT = -1
-TEST_MODE = False
+TEST_MODE = True
 TIMER_EVENT = pygame.USEREVENT  # событие для подсчета времени
 pygame.time.set_timer(TIMER_EVENT, 100)
 
@@ -174,7 +174,7 @@ class Character(pygame.sprite.Sprite):
 
     def move(self, x, y):
         """Смещение спрайта на x, y пикселей. Проверка на коллизии с блоками, противниками, монетами,
-        финишем. Проверка на вхождение в нижнюю границу уровня и проверка нахождения на платформе. """
+        финишем. Проверка на вхождение в границы уровня и проверка нахождения на платформе. """
         self.rect.x += x
         self.rect.y += y
 
@@ -202,6 +202,10 @@ class Character(pygame.sprite.Sprite):
                 self.rect.y = collided_sprite.rect.y - self.rect.h
             elif y < 0:
                 self.rect.y = collided_sprite.rect.y + collided_sprite.rect.h
+        if self.rect.x + self.rect.w > display.screen_rect.x + display.screen_rect.w:
+            self.rect.x = display.screen_rect.x + display.screen_rect.w - self.rect.w
+        elif self.rect.x < display.screen_rect.x:
+            self.rect.x = display.screen_rect.x
         if TEST_MODE is False:
             if not self.jump:
                 self.check_standing()
@@ -235,7 +239,8 @@ class Character(pygame.sprite.Sprite):
                     self.set_death()
 
     def check_out_of_bounds(self):
-        """Проверка вхождения в нижнюю границу уровня"""
+        """Проверка вхождения в границы уровня"""
+        # Нижняя граница #
         if self.rect.y >= display.screen_rect.y + display.screen_rect.h:
             if not self.death:
                 self.set_death()
@@ -893,7 +898,7 @@ class Stats:
 if __name__ == '__main__':
     # Инициализация #
     pygame.display.set_caption('PAULUM AMBULARE.EXE')
-    display_size = display_width, display_height = 1280, 640
+    display_size = display_width, display_height = 1280 // 2, 640
     pygame.mouse.set_visible(False)
 
     # Спрайты #
