@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "level_ex.tmx",
+    "activeFile": "main_level.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -42,7 +42,8 @@
             "scaleInEditor": 1
         },
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Game_Objects.tsx": {
-            "dynamicWrapping": true
+            "dynamicWrapping": true,
+            "scaleInDock": 1
         },
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Goblin.tsx": {
             "dynamicWrapping": false,
@@ -109,11 +110,11 @@
             "dynamicWrapping": true
         },
         "main_level.tmx": {
-            "scale": 0.25,
+            "scale": 0.125,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 1340,
-                "y": 2852
+                "x": 2224,
+                "y": 2200
             }
         },
         "tmw_desert_spacing.tsx": {
@@ -138,12 +139,14 @@
     "map.tileWidth": 16,
     "map.width": 30,
     "openFiles": [
-        "level_ex.tmx"
+        "level_ex.tmx",
+        "main_level.tmx"
     ],
     "project": "level_1.tiled-project",
     "property.type": "float",
     "recentFiles": [
         "level_ex.tmx",
+        "main_level.tmx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Other.tsx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Goblin.tsx",
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Terrain_1.tsx",
@@ -153,8 +156,7 @@
         "C:/Users/Пользовател/Documents/Домаха кул хацкера/PyCharm/PyGameUntitledProject/resources/Background.tsx",
         "Background.tsx",
         "Water.tsx",
-        "Terrain_1.tsx",
-        "Static_Objects.tsx"
+        "Terrain_1.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
