@@ -836,7 +836,7 @@ if __name__ == '__main__':
     display = Display(display_size)
     pygame.display.set_icon(load_image('icon.png'))
     main_menu()
-    game_map = TiledMap('level_ex.tmx')  # карта уровня
+    game_map = TiledMap('main_level.tmx')  # карта уровня
     tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов в пикселях
     level_tiles = level_width, level_height = game_map.get_level_size()  # размер уровня в тайлах
     display.set_level_size((level_width * tile_width, level_height * tile_height))
