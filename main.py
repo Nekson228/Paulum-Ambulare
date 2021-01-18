@@ -6,26 +6,25 @@ import pytmx
 # Игровые константы #
 SPEED = 10  # скорость персонажа
 FPS = 30  # частота обновления экрана (кадров в секунду)
+MUSIC_VOLUME = 0.1  # громкость музыки в процентах
+SFX_VOLUME = 0.2  # громкость звуков в процентах
 RIGHT = 1
 LEFT = -1
-MUSIC_VOLUME = 0.1
-SFX_VOLUME = 0.2
 TEST_MODE = False
-TIMER_EVENT = pygame.USEREVENT
+TIMER_EVENT = pygame.USEREVENT  # событие для подсчета времени
 pygame.time.set_timer(TIMER_EVENT, 100)
-
-player_x = 0
-player_y = 0  # нужно для объявления игрока
 
 pygame.init()
 
 
 def terminate():
+    """Завершение работы программы"""
     pygame.quit()
     sys.exit()
 
 
 def load_image(name: str) -> pygame.Surface:
+    """Загрузка изображения name"""
     fullname = os.path.join('resources', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
@@ -36,18 +35,22 @@ def load_image(name: str) -> pygame.Surface:
 
 
 def play():
+    """Запуск музыки"""
     pygame.mixer.music.play(loops=-1, fade_ms=2000)
 
 
 def pause():
+    """Приостановка музыки"""
     pygame.mixer.music.pause()
 
 
 def unpause():
+    """Запуск приостановленной музыки"""
     pygame.mixer.music.unpause()
 
 
 def text_format(message, font_filename, size, color):
+    """Форматирование текста message. Задание ему шрифта по пути font_filename, размера size и цвета color"""
     new_font = pygame.font.Font(f'resources/{font_filename}', size)
     new_text = new_font.render(message, True, color)
 
@@ -55,23 +58,27 @@ def text_format(message, font_filename, size, color):
 
 
 class Music:
+    """Класс для взаимодействия с музыкой"""
     tracks = ['resources/music/Intro Theme.mp3',
               'resources/music/Grasslands Theme.mp3',
               'resources/music/Game Over.mp3',
               'resources/music/Victory Theme.mp3']
 
     def __init__(self, volume: float):
+        """Инициализация. Задание громкости volume в диапазоне от 0 до 1"""
         self.current_track = 0
         pygame.mixer.music.load(Music.tracks[self.current_track])
         pygame.mixer.music.set_volume(volume)
 
     def switch(self, n):
+        """Смена текущего трека на трек с id n"""
         self.current_track = n
         pygame.mixer.music.load(Music.tracks[self.current_track])
         play()
 
 
 class Character(pygame.sprite.Sprite):
+    """Класс персонажа"""
     # Константы персонажа #
     IDLE_ANIMATION_SPEED = 0.1
     ATTACK_ANIMATION_SPEED = 0.4
@@ -142,10 +149,12 @@ class Character(pygame.sprite.Sprite):
     death_sound = pygame.mixer.Sound('resources/sounds/hurt.wav')
     coin_sound = pygame.mixer.Sound('resources/sounds/coin.wav')
 
+    # Звуки персонажа #
     jump_sound.set_volume(SFX_VOLUME)
     death_sound.set_volume(SFX_VOLUME)
 
     def __init__(self, x, y):
+        """Инициализация. Перемещение спрайта на позицию x, y"""
         super().__init__(player_group, all_sprites)
 
         self.current_animation = Character.idle_animation_right
@@ -164,6 +173,8 @@ class Character(pygame.sprite.Sprite):
         self.death = False
 
     def move(self, x, y):
+        """Смещение спрайта на x, y пикселей. Проверка на коллизии с блоками, противниками, монетами,
+        финишем. Проверка на вхождение в нижнюю границу уровня и проверка нахождения на платформе. """
         self.rect.x += x
         self.rect.y += y
 
@@ -200,6 +211,7 @@ class Character(pygame.sprite.Sprite):
         self.check_finish()
 
     def check_coin(self):
+        """Проверка коллизии с монетами"""
         collided_object = pygame.sprite.spritecollideany(self, game_objects)
         if collided_object and isinstance(collided_object, Coin):
             Character.coin_sound.play()
@@ -207,6 +219,7 @@ class Character(pygame.sprite.Sprite):
             collided_object.kill()
 
     def check_finish(self):
+        """Проверка коллизии с финишем"""
         collided_object = pygame.sprite.spritecollideany(self, game_objects)
         if collided_object and isinstance(collided_object, Finish):
             finish()
@@ -214,6 +227,7 @@ class Character(pygame.sprite.Sprite):
             reset_level()
 
     def check_enemy_collision(self):
+        """Проверка коллизии с врагом"""
         if not TEST_MODE:
             collided_enemy = pygame.sprite.spritecollideany(self, mobs_group)
             if collided_enemy:
@@ -221,11 +235,13 @@ class Character(pygame.sprite.Sprite):
                     self.set_death()
 
     def check_out_of_bounds(self):
+        """Проверка вхождения в нижнюю границу уровня"""
         if self.rect.y >= display.screen_rect.y + display.screen_rect.h:
             if not self.death:
                 self.set_death()
 
     def check_standing(self):
+        """Проверка нахождения на платформе"""
         self.rect.h += 1
         collided_sprite = pygame.sprite.spritecollideany(self, obstacles_group)
         self.rect.h -= 1
@@ -242,6 +258,7 @@ class Character(pygame.sprite.Sprite):
                                else Character.fall_animation_left)
 
     def set_animation(self, animation):
+        """Установка текущей анимации на animation"""
         if not self.death:
             self.current_animation = animation
             self.animation_frame = 0
@@ -251,6 +268,7 @@ class Character(pygame.sprite.Sprite):
                 self.animation_speed = Character.OTHER_ANIMATION_SPEED
 
     def set_jump(self, state):
+        """Установка прыжка на state"""
         if state is True:
             self.rect.y -= 1
             collided_sprite = pygame.sprite.spritecollideany(self, obstacles_group)
@@ -265,11 +283,13 @@ class Character(pygame.sprite.Sprite):
             self.jump = False
 
     def set_standing(self):
+        """Перевод персонажа в состояние покоя"""
         if self.current_animation in (Character.run_animation_right, Character.run_animation_left):
             self.set_animation(Character.idle_animation_right if self.facing == RIGHT
                                else Character.idle_animation_left)
 
     def set_death(self):
+        """Перевод персонажа в состояние смерти"""
         self.set_animation(Character.die_animation_right if self.facing == RIGHT else Character.die_animation_left)
         self.death = True
         stats.increase_attempts()
@@ -277,6 +297,7 @@ class Character(pygame.sprite.Sprite):
         pygame.mixer.music.fadeout(3000)
 
     def update(self):
+        """Обновление персонажа. Перемещение персонажа по оси y если он прыгает или падает. Смена кадров анимации"""
         if self.jump:
             if self.jump_delta >= -Character.JUMP_HEIGHT:
                 if self.jump_delta > 0:
@@ -309,6 +330,7 @@ class Character(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
+    """Класс врага"""
     # Константы персонажа #
     IDLE_ANIMATION_SPEED = 0.1
 
@@ -335,6 +357,7 @@ class Enemy(pygame.sprite.Sprite):
     ]
 
     def __init__(self, x, y):
+        """Инициализация. Перемещение спрайта на позицию x, y"""
         super().__init__(mobs_group, all_sprites)
 
         self.current_animation = Enemy.run_animation_right
@@ -342,11 +365,12 @@ class Enemy(pygame.sprite.Sprite):
         self.attack_animation_type = 0
         self.animation_speed = Enemy.IDLE_ANIMATION_SPEED
         self.image = self.current_animation[self.animation_frame]
-        self.rect = self.image.get_rect().move(x, y).inflate(-5, -5)
+        self.rect = self.image.get_rect().move(x, y).inflate(-20, 0)
 
         self.facing = RIGHT
 
     def move(self, x):
+        """Смещение спрайта на x пикселей. Проверка на коллизию с блоками или объектами-ограничителями"""
         self.rect.x += x * self.facing
 
         if x != 0:
@@ -361,10 +385,12 @@ class Enemy(pygame.sprite.Sprite):
             self.facing *= -1
 
     def set_animation(self, animation):
+        """Установка текущей анимации на animation"""
         self.current_animation = animation
         self.animation_frame = 0
 
     def update(self):
+        """Обновление спрайта. Смещение на SPEED // 5 пикселей. Смена кадров анимации"""
         self.move(SPEED // 5)
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
@@ -373,8 +399,10 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Coin(pygame.sprite.Sprite):
+    """Класс монет"""
     IDLE_ANIMATION_SPEED = 0.1
 
+    # Анимация #
     idle_animation = [
         load_image('tilesheets/coin_1.png'),
         load_image('tilesheets/coin_2.png'),
@@ -391,6 +419,7 @@ class Coin(pygame.sprite.Sprite):
     ]
 
     def __init__(self, x, y):
+        """Инициализация. Перемещение спрайта на позицию x, y"""
         super().__init__(game_objects, all_sprites)
 
         self.animation_frame = 0
@@ -400,6 +429,7 @@ class Coin(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
 
     def update(self):
+        """Обновление спрайта. Смена кадра анимации"""
         self.animation_frame += self.animation_speed
         self.animation_frame = round(self.animation_frame, 1)
         self.animation_frame %= len(Coin.idle_animation)
@@ -407,69 +437,87 @@ class Coin(pygame.sprite.Sprite):
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, tile_img, x, y, block=False):
+    """Основной класс для большинства игровых объектов на карте"""
+    def __init__(self, tile_img, x, y, w, h):
+        """Иницилизация. Созднание спрайта с размером w * h пикселей. Перемещение спрайта на позицию (x; y)"""
         super().__init__(all_sprites)
-        if block:
-            self.add(obstacles_group)
         self.image = tile_img
-        self.image = pygame.transform.scale(self.image, (tile_width, tile_height))
-        self.rect = self.image.get_rect().move(x, y)
-
-
-class Deco(pygame.sprite.Sprite):
-    def __init__(self, img, x, y, w, h):
-        super().__init__(non_visible_things)
-        self.image = img
         self.image = pygame.transform.scale(self.image, (w, h))
         self.rect = self.image.get_rect().move(x, y)
 
 
-class Finish(pygame.sprite.Sprite):
+class Block(Tile):
+    """Класс блока-препятствия"""
+    def __init__(self, tile_img, x, y):
+        """Инициализация аналогичная классу Tile"""
+        super().__init__(tile_img, x, y, tile_width, tile_height)
+        self.add(obstacles_group)
+
+
+class Deco(Tile):
+    """Класс блоков-ограничителей"""
     def __init__(self, img, x, y, w, h):
-        super().__init__(game_objects, all_sprites)
-        self.image = img
-        self.image = pygame.transform.scale(self.image, (w, h))
-        self.rect = self.image.get_rect().move(x, y)
+        """Инициализация аналогичная классу Tile"""
+        super().__init__(img, x, y, w, h)
+        self.add(non_visible_things)
+        self.remove(all_sprites)
+
+
+class Finish(Tile):
+    """Класс финишного флага"""
+    def __init__(self, img, x, y, w, h):
+        """Инициализация аналогичная классу Tile"""
+        super(Finish, self).__init__(img, x, y, w, h)
+        self.add(game_objects)
 
 
 def reset_level():
+    """Пересоздание уровня"""
     global character
+    # Обнуление статистики и удаление спрайтов #
     stats.reset_time()
     stats.reset_coins()
     game_map.reset_coins()
     for group in all_groups:
         group.empty()
+    # Возвращение экрана и игрока в исходное состояние #
     character = game_map.render()
     display.reset()
 
 
 class TiledMap:
+    """Класс для загрузки уровня сделанного в TiledMapEditor"""
     def __init__(self, tmx_map):
         tmx_map = "main_maps/" + tmx_map
         self.level_map = pytmx.load_pygame(tmx_map, pixelalpha=True)
         self.coins = 0
 
     def get_tile_size(self):
+        """Получениие размеров тайла"""
         return self.level_map.tilewidth, self.level_map.tileheight
 
     def get_level_size(self):
+        """Получение размера уровня в тайлах"""
         return self.level_map.width, self.level_map.height
 
     def get_coins(self):
+        """Получение количества монет на уровне"""
         return self.coins
 
     def reset_coins(self):
+        """Обнуление количества монет на уровне"""
         self.coins = 0
 
-    def render(self):
+    def render(self) -> Character:
+        """Прорисовка всех объектов на уровне"""
         char = None
         for x, y, gid in self.level_map.layernames['Background']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
-                Tile(tile, x * tile_width, y * tile_height)
+                Tile(tile, x * tile_width, y * tile_height, tile_width, tile_height)
         for tile_object in self.level_map.layernames['Platforms']:
             if tile_object.type == 'Block':
-                Tile(tile_object.image, tile_object.x, tile_object.y, block=True)
+                Block(tile_object.image, tile_object.x, tile_object.y)
         for entity in self.level_map.layernames['Mobs']:
             Enemy(entity.x, entity.y)
         for entity in self.level_map.layernames['Character']:
@@ -486,13 +534,14 @@ class TiledMap:
         for x, y, gid in self.level_map.layernames['Water']:
             tile = self.level_map.get_tile_image_by_gid(gid)
             if tile:
-                Tile(tile, x * tile_width, y * tile_height)
+                Tile(tile, x * tile_width, y * tile_height, tile_width, tile_height)
         return char
 
 
 class Camera:
-    # зададим начальный сдвиг камеры
+    """Класс для фиксации объекта в центре экрана"""
     def __init__(self):
+        """Инициализация"""
         self.dx = 0
         self.dy = 0
 
@@ -502,6 +551,7 @@ class Camera:
         self.top_blocked = self.bottom_blocked = self.right_blocked = self.left_blocked = False
 
     def reset(self):
+        """Возвращение камеры в исходное состояние"""
         self.dx = 0
         self.dy = 0
 
@@ -510,8 +560,8 @@ class Camera:
 
         self.top_blocked = self.bottom_blocked = self.right_blocked = self.left_blocked = False
 
-    # сдвинуть объект obj на смещение камеры
     def apply(self, obj):
+        """Сдвиг объекта obj на смещение камеры"""
         if isinstance(obj, pygame.sprite.Sprite):
             obj.rect.x += self.dx if self.scroll_x else 0
             obj.rect.y += self.dy if self.scroll_y else 0
@@ -532,8 +582,8 @@ class Camera:
                 self.scroll_y = False
                 self.top_blocked = True
 
-    # позиционировать камеру на объекте target
     def update(self, target):
+        """Позиционирование камеры на объекте target"""
         self.dx = -(target.rect.x + target.rect.w // 2 - display_width // 2)
         self.dy = -(target.rect.y + target.rect.h // 2 - display_height // 2)
         if self.scroll_x is False:
@@ -553,11 +603,13 @@ class Camera:
 
 
 def main_menu(from_pause=False):
+    """Запуск главного меню"""
     menu = True
     music.switch(0)
     background = pygame.transform.scale(load_image('menu_screens/main_menu.png'), (display_width, display_height))
     selected = "start"
 
+    # Проверка и обработка событий #
     while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -604,10 +656,12 @@ def main_menu(from_pause=False):
 
 
 def pause_menu():
+    """Запуск меню паузы"""
     pause()
     menu = True
     selected = "resume"
 
+    # Проверка событий #
     while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -640,6 +694,8 @@ def pause_menu():
         display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 360))
         pygame.display.flip()
         display.clock.tick(FPS)
+
+    # Обработка выбранного пункта меню #
     if selected == 'resume':
         unpause()
     elif selected == 'quit':
@@ -647,11 +703,13 @@ def pause_menu():
 
 
 def game_over():
+    """Запуск экрана смерти"""
     music.switch(2)
     menu = True
     background = pygame.transform.scale(load_image('menu_screens/game_over.png'), (display_width, display_height))
     selected = "restart"
 
+    # Проверка событий #
     while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -688,6 +746,7 @@ def game_over():
         display.screen.blit(text_quit, (display_width / 2 - (quit_rect.width / 2), 420))
         pygame.display.flip()
         display.clock.tick(FPS)
+    # Обработка выбранного пункта меню #
     if selected == 'restart':
         reset_level()
         music.switch(1)
@@ -696,6 +755,7 @@ def game_over():
 
 
 def finish():
+    """Запуск экрана победы"""
     pygame.mixer.music.load(Music.tracks[3])
     pygame.mixer.music.play()
     attempts, time, coins = stats.get_stats()
@@ -708,6 +768,7 @@ def finish():
     background = pygame.transform.scale(load_image('menu_screens/victory_screen.png'), (display_width, display_height))
     selected = "retry"
 
+    # Проверка событий #
     while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -747,6 +808,7 @@ def finish():
         display.screen.blit(coins_text, (100, 240))
         pygame.display.flip()
         display.clock.tick(FPS)
+    # Обработка выбранного пункта меню #
     if selected == 'retry':
         music.switch(1)
     elif selected == 'quit':
@@ -754,20 +816,25 @@ def finish():
 
 
 class Display:
+    """Класс для обновления экрана"""
     def __init__(self, screen_size):
+        """Инициализация. Созднание экрана с размером screen_size"""
         self.screen = pygame.display.set_mode(screen_size)
         self.screen_rect = pygame.Rect((0, 0), (0, 0))
         self.clock = pygame.time.Clock()  # объект игровых часов
         self.camera = Camera()  # объект игровой камеры
 
     def reset(self):
+        """Возвращение экрана в исходное положение"""
         self.screen_rect.x = self.screen_rect.y = 0
         self.camera.reset()
 
     def set_level_size(self, level_size):
+        """Задание размера уровня level_size в пикселях"""
         self.screen_rect.width, self.screen_rect.height = level_size
 
     def update(self):
+        """Обновление картинки на экране. Обновление игровых объектов"""
         self.clock.tick(FPS if not character.death else FPS // 2)
         self.screen.fill('black')
 
@@ -786,31 +853,40 @@ class Display:
 
 
 class Stats:
+    """Класс для хранения и изменения статистик персонажа"""
     def __init__(self):
+        """Инициализация"""
         self.attempts = 1
         self.coins = 0
         self.time_passed = 0
 
     def get_stats(self):
+        """Получение игровой статистики"""
         return self.attempts, self.time_passed, self.coins
 
     def increase_attempts(self):
+        """Увеличить количество попыток"""
         self.attempts += 1
 
     def increase_coins(self):
+        """Увеличить количество монет"""
         self.coins += 1
 
     def increase_time(self, delta_time):
+        """Увеличить количество прошедшего игрового времени"""
         self.time_passed += delta_time
         self.time_passed = round(self.time_passed, 1)
 
     def reset_attempts(self):
+        """Возвращение попыток к исходному значению"""
         self.attempts = 1
 
     def reset_coins(self):
+        """Возвращение собранных монет к исходному значению"""
         self.coins = 0
 
     def reset_time(self):
+        """Возвращение прошедшего времени к исходному значению"""
         self.time_passed = 0
 
 
@@ -834,14 +910,15 @@ if __name__ == '__main__':
     music = Music(MUSIC_VOLUME)
     font = "8 Bit Font.ttf"
     display = Display(display_size)
-    pygame.display.set_icon(load_image('icon.png'))
-    main_menu()
-    game_map = TiledMap('main_level.tmx')  # карта уровня
+    game_map = TiledMap('level_ex.tmx')  # карта уровня
     tile_size = tile_width, tile_height = game_map.get_tile_size()  # размеры тайлов в пикселях
     level_tiles = level_width, level_height = game_map.get_level_size()  # размер уровня в тайлах
     display.set_level_size((level_width * tile_width, level_height * tile_height))
-    character = game_map.render()
     stats = Stats()
+
+    # Запуск игры #
+    main_menu()
+    character = game_map.render()
     if not TEST_MODE:
         character.check_standing()
 
