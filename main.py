@@ -10,7 +10,7 @@ MUSIC_VOLUME = 0.1  # громкость музыки в процентах
 SFX_VOLUME = 0.2  # громкость звуков в процентах
 RIGHT = 1
 LEFT = -1
-TEST_MODE = False
+TEST_MODE = True
 TIMER_EVENT = pygame.USEREVENT  # событие для подсчета времени
 pygame.time.set_timer(TIMER_EVENT, 100)
 
@@ -86,7 +86,7 @@ class Character(pygame.sprite.Sprite):
 
     JUMP_HEIGHT = 8  # высота прыжка персонажа
     MIN_FALL_SPEED = 1  # минимальная скорость падения
-    MAX_FALL_SPEED = JUMP_HEIGHT - 1  # максимальная скорость падения
+    MAX_FALL_SPEED = JUMP_HEIGHT - 2  # максимальная скорость падения
 
     # Анимации персонажа #
     idle_animation_right = [
@@ -202,6 +202,10 @@ class Character(pygame.sprite.Sprite):
                 self.rect.y = collided_sprite.rect.y - self.rect.h
             elif y < 0:
                 self.rect.y = collided_sprite.rect.y + collided_sprite.rect.h
+        if self.rect.x + self.rect.w > display.screen_rect.x + display.screen_rect.w:
+            self.rect.x = display.screen_rect.x + display.screen_rect.w - self.rect.w
+        elif self.rect.x < display.screen_rect.x:
+            self.rect.x = display.screen_rect.x
         if TEST_MODE is False:
             if not self.jump:
                 self.check_standing()
@@ -540,6 +544,9 @@ class TiledMap:
 
 class Camera:
     """Класс для фиксации объекта в центре экрана"""
+    X_TOLERANCE = SPEED
+    Y_TOLERANCE = Character.MAX_FALL_SPEED ** 2
+
     def __init__(self):
         """Инициализация"""
         self.dx = 0
@@ -569,16 +576,16 @@ class Camera:
         elif isinstance(obj, pygame.Rect):
             obj.x += self.dx if self.scroll_x else 0
             obj.y += self.dy if self.scroll_y else 0
-            if obj.x + obj.w <= display_width:
+            if obj.x + obj.w <= display_width + Camera.X_TOLERANCE:
                 self.scroll_x = False
                 self.right_blocked = True
-            if obj.x >= 0:
+            if obj.x >= -Camera.X_TOLERANCE:
                 self.scroll_x = False
                 self.left_blocked = True
-            if obj.y + obj.h <= display_height:
+            if obj.y + obj.h <= display_height + Camera.Y_TOLERANCE:
                 self.scroll_y = False
                 self.bottom_blocked = True
-            if obj.y >= 0:
+            if obj.y >= -Camera.Y_TOLERANCE:
                 self.scroll_y = False
                 self.top_blocked = True
 
@@ -756,13 +763,14 @@ def game_over():
 
 def finish():
     """Запуск экрана победы"""
+    color = pygame.Color(255, 230, 0)
     pygame.mixer.music.load(Music.tracks[3])
     pygame.mixer.music.play()
     attempts, time, coins = stats.get_stats()
     all_coins = game_map.get_coins()
-    attempts_text = text_format(f"ATTEMPTS: {attempts}", font, 20, 'yellow')
-    time_text = text_format(f"TIME: {time}", font, 20, 'yellow')
-    coins_text = text_format(f"COINS: {coins}/{all_coins}", font, 20, 'yellow')
+    attempts_text = text_format(f"ATTEMPTS: {attempts}", font, 20, color)
+    time_text = text_format(f"TIME: {time}", font, 20, color)
+    coins_text = text_format(f"COINS: {coins}/{all_coins}", font, 20, color)
     time_template = time_text.get_rect()
     menu = True
     background = pygame.transform.scale(load_image('menu_screens/victory_screen.png'), (display_width, display_height))
@@ -786,15 +794,15 @@ def finish():
 
         display.screen.fill('black')
         display.screen.blit(background, (0, 0))
-        title = text_format("YOU WIN!", font, 60, 'yellow')
+        title = text_format("YOU WIN!", font, 60, color)
         if selected == "retry":
-            text_retry = text_format(">RETRY<", font, 20, 'yellow')
+            text_retry = text_format(">RETRY<", font, 20, color)
         else:
-            text_retry = text_format("RETRY", font, 20, 'yellow')
+            text_retry = text_format("RETRY", font, 20, color)
         if selected == "quit":
-            text_quit = text_format(">QUIT<", font, 20, 'yellow')
+            text_quit = text_format(">QUIT<", font, 20, color)
         else:
-            text_quit = text_format("QUIT", font, 20, 'yellow')
+            text_quit = text_format("QUIT", font, 20, color)
 
         title_rect = title.get_rect()
         retry_rect = text_retry.get_rect()
