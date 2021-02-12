@@ -8,12 +8,17 @@ SPEED = 10  # скорость персонажа
 FPS = 30  # частота обновления экрана (кадров в секунду)
 MUSIC_VOLUME = 0.1  # громкость музыки в процентах
 SFX_VOLUME = 0.2  # громкость звуков в процентах
+GAMEPAD = False  # подключенный геймпад (по умолчанию - выключен)
 RIGHT = 1
 LEFT = -1
 TEST_MODE = False
 TIMER_EVENT = pygame.USEREVENT  # событие для подсчета времени
 pygame.init()
 pygame.time.set_timer(TIMER_EVENT, 100)
+if pygame.joystick.get_count():
+    pygame.joystick.init()
+    gamepad = pygame.joystick.Joystick(0)
+    GAMEPAD = True
 
 
 def terminate():
@@ -630,6 +635,22 @@ def main_menu(from_pause=False):
                         menu = False
                     if selected == "quit":
                         terminate()
+            if event.type == pygame.JOYBUTTONDOWN:
+                buttons = gamepad.get_button(0), gamepad.get_button(11)
+                if buttons[0]:
+                    if selected == "start":
+                        menu = False
+                    if selected == "quit":
+                        terminate()
+                if buttons[1]:
+                    selected = "start"
+                    menu = False
+            if GAMEPAD:
+                hat = gamepad.get_hat(0)
+                if hat[1] == 1:
+                    selected = "start"
+                elif hat[1] == -1:
+                    selected = "quit"
 
         display.screen.fill('black')
         display.screen.blit(background, (0, 0))
@@ -682,6 +703,22 @@ def pause_menu():
                         menu = False
                     if selected == "quit":
                         menu = False
+            if event.type == pygame.JOYBUTTONDOWN:
+                buttons = gamepad.get_button(0), gamepad.get_button(11)
+                if buttons[0]:
+                    if selected == "resume":
+                        menu = False
+                    if selected == "quit":
+                        menu = False
+                if buttons[1]:
+                    selected = "resume"
+                    menu = False
+            if GAMEPAD:
+                hat = gamepad.get_hat(0)
+                if hat[1] == 1:
+                    selected = "resume"
+                elif hat[1] == -1:
+                    selected = "quit"
 
         display.screen.fill('black')
         if selected == "resume":
@@ -730,6 +767,22 @@ def game_over():
                         menu = False
                     if selected == "quit":
                         menu = False
+            if event.type == pygame.JOYBUTTONDOWN:
+                buttons = gamepad.get_button(0), gamepad.get_button(11)
+                if buttons[0]:
+                    if selected == "restart":
+                        menu = False
+                    if selected == "quit":
+                        menu = False
+                if buttons[1]:
+                    selected = "restart"
+                    menu = False
+            if GAMEPAD:
+                hat = gamepad.get_hat(0)
+                if hat[1] == 1:
+                    selected = "restart"
+                elif hat[1] == -1:
+                    selected = "quit"
 
         display.screen.fill('black')
         display.screen.blit(background, (0, 0))
@@ -790,6 +843,22 @@ def finish():
                         menu = False
                     if selected == "quit":
                         menu = False
+            if event.type == pygame.JOYBUTTONDOWN:
+                buttons = gamepad.get_button(0), gamepad.get_button(11)
+                if buttons[0]:
+                    if selected == "retry":
+                        menu = False
+                    if selected == "quit":
+                        menu = False
+                if buttons[1]:
+                    selected = "retry"
+                    menu = False
+            if GAMEPAD:
+                hat = gamepad.get_hat(0)
+                if hat[1] == 1:
+                    selected = "retry"
+                elif hat[1] == -1:
+                    selected = "quit"
 
         display.screen.fill('black')
         display.screen.blit(background, (0, 0))
@@ -936,6 +1005,8 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and not character.death:
+                pause_menu()
+            if event.type == pygame.JOYBUTTONDOWN and gamepad.get_button(11) and not character.death:
                 pause_menu()
             if event.type == TIMER_EVENT:
                 stats.increase_time(0.1)
