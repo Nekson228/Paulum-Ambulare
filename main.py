@@ -10,11 +10,10 @@ MUSIC_VOLUME = 0.1  # громкость музыки в процентах
 SFX_VOLUME = 0.2  # громкость звуков в процентах
 RIGHT = 1
 LEFT = -1
-TEST_MODE = True
+TEST_MODE = False
 TIMER_EVENT = pygame.USEREVENT  # событие для подсчета времени
-pygame.time.set_timer(TIMER_EVENT, 100)
-
 pygame.init()
+pygame.time.set_timer(TIMER_EVENT, 100)
 
 
 def terminate():
